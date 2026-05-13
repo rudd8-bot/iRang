@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이랑 어디가지? - 부산/경남 영아 나들이 탐색기</title>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.1);
+    --text-primary: #1a1a1a;
+    --text-secondary: #666;
+    --text-tertiary: #999;
+    --blue-bg: #E6F1FB;
+    --blue-text: #185FA5;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text-primary); font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; min-height: 100vh; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+  .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .fg label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+  .fg select { width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 13px; color: var(--text-primary); }
+
+  .sec-lbl { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+  .cat-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; }
+  .cat-btn { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; cursor: pointer; background: var(--surface); color: var(--text-secondary); user-select: none; }
+  .cat-btn.on { background: var(--blue-bg); color: var(--blue-text); border-color: #B5D4F4; }
+
+  .age-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .age-row label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .age-row select { padding: 8px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 13px; color: var(--text-primary); flex: 1; }
+
+  .go-btn { width: 100%; padding: 12px; font-size: 15px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--surface); color: var(--text-primary); cursor: pointer; margin-bottom: 1.5rem; transition: background 0.15s; }
+  .go-btn:hover:not(:disabled) { background: #f0ede8; }
+  .go-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .debug { font-size: 11px; color: var(--text-tertiary); margin-bottom: 1rem; min-height: 16px; }
+
+  .loading { text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 14px; display: none; }
+  .loading.show { display: block; }
+  .empty-box { padding: 1rem 1.25rem; background: #f5f4f0; border-radius: var(--radius-lg); font-size: 13px; color: var(--text-secondary); text-align: center; display: none; }
+  .empty-box.show { display: block; }
+  .error-box { padding: 1rem 1.25rem; border: 0.5px solid rgba(200,0,0,0.2); border-radius: var(--radius-lg); color: #a32d2d; font-size: 13px; line-height: 1.7; display: none; }
+  .error-box.show { display: block; }
+  .result-count { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; display: none; }
+  .result-count.show { display: block; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; gap: 8px; }
+  .card-name { font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+  .card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .card-indoor { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
+  .verified-badge { font-size: 10px; background: #EAF3DE; color: #3B6D11; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+  .card-tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: var(--radius-md); margin-bottom: 6px; }
+  .card-loc { font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px; }
+  .card-baby { font-size: 12px; color: var(--blue-text); background: var(--blue-bg); border-radius: var(--radius-md); padding: 5px 10px; margin-bottom: 8px; line-height: 1.5; }
+  .card-cost { font-size: 12px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .card-tip { font-size: 12px; color: var(--text-tertiary); border-top: 0.5px solid var(--border); padding-top: 8px; line-height: 1.5; }
+
+  .t-nature { background: #EAF3DE; color: #3B6D11; }
+  .t-edu { background: #E6F1FB; color: #185FA5; }
+  .t-culture { background: #EEEDFE; color: #534AB7; }
+  .t-market { background: #FAEEDA; color: #854F0B; }
+  .t-play { background: #FAECE7; color: #993C1D; }
+  .t-food { background: #FBEAF0; color: #993556; }
+  .t-festival { background: #E1F5EE; color: #0F6E56; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>아이랑 어디가지?</h1>
+  <p class="subtitle">부산·경남 영아 동반 나들이 맞춤 탐색기</p>
+
+  <div class="filter-grid">
+    <div class="fg">
+      <label>날씨/계절</label>
+      <select id="f-weather">
+        <option value="">상관없음</option>
+        <option value="맑음, 야외 OK">맑음 · 야외 OK</option>
+        <option value="비·흐림, 실내 위주">비·흐림 · 실내 위주</option>
+        <option value="겨울·추위, 실내 위주">겨울·추위 · 실내 위주</option>
+        <option value="여름·더위, 더위 피하기">여름·더위 · 더위 피하기</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>이동 거리</label>
+      <select id="f-dist">
+        <option value="">상관없음</option>
+        <option value="30분 이내">30분 이내</option>
+        <option value="1시간 이내">1시간 이내</option>
+        <option value="2시간 이내 당일치기">2시간 이내 당일치기</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>예산 (4인 기준)</label>
+      <select id="f-budget">
+        <option value="">상관없음</option>
+        <option value="무료~2만원">무료~2만원</option>
+        <option value="5만원 이하">5만원 이하</option>
+        <option value="10만원 이하">10만원 이하</option>
+        <option value="10만원 이상도 OK">10만원 이상도 OK</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>실내/실외</label>
+      <select id="f-indoor">
+        <option value="">상관없음</option>
+        <option value="실내 위주">실내 위주</option>
+        <option value="실외 위주">실외 위주</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="age-row">
+    <label>아이 월령</label>
+    <select id="f-age">
+      <option value="">상관없음</option>
+      <option value="100일 미만">100일 미만</option>
+      <option value="6개월">6개월</option>
+      <option value="12개월">12개월</option>
+      <option value="24개월">24개월</option>
+      <option value="36개월">36개월</option>
+      <option value="48개월">48개월</option>
+      <option value="60개월 이상">60개월 이상</option>
+    </select>
+  </div>
+
+  <p class="sec-lbl">원하는 경험 (복수 선택 가능)</p>
+  <div class="cat-grid" id="cats">
+    <button type="button" class="cat-btn" data-v="자연·힐링">자연·힐링</button>
+    <button type="button" class="cat-btn" data-v="교육·체험">교육·체험</button>
+    <button type="button" class="cat-btn" data-v="문화·예술">문화·예술</button>
+    <button type="button" class="cat-btn" data-v="시장·쇼핑">시장·쇼핑</button>
+    <button type="button" class="cat-btn" data-v="놀이·액티비티">놀이·액티비티</button>
+    <button type="button" class="cat-btn" data-v="먹거리 중심">먹거리 중심</button>
+    <button type="button" class="cat-btn" data-v="축제·이벤트">축제·이벤트</button>
+  </div>
+
+  <p class="debug" id="debug">선택된 경험 없음</p>
+  <button type="button" class="go-btn" id="goBtn">장소 찾기 →</button>
+
+  <div class="loading" id="loading">장소를 탐색하고 있어요...</div>
+  <div class="error-box" id="errBox"></div>
+  <div class="empty-box" id="emptyBox">조건에 맞는 장소를 찾지 못했어요. 필터를 넓혀서 다시 시도해보세요.</div>
+  <p class="result-count" id="resultCount"></p>
+  <div id="cardArea"></div>
+</div>
+
+<script>
+(function(){
+  var PROXY = '/api/proxy';
+  var tagMap = {
+    '자연·힐링':'t-nature','교육·체험':'t-edu','문화·예술':'t-culture',
+    '시장·쇼핑':'t-market','놀이·액티비티':'t-play','먹거리 중심':'t-food','축제·이벤트':'t-festival'
+  };
+  var VALID_CATS = Object.keys(tagMap);
+  var selected = new Set();
+  var isLoading = false;
+
+  document.getElementById('cats').addEventListener('click', function(e){
+    var btn = e.target.closest('.cat-btn');
+    if(!btn) return;
+    var v = btn.getAttribute('data-v');
+    if(!v) return;
+    if(selected.has(v)){ selected.delete(v); btn.classList.remove('on'); }
+    else { selected.add(v); btn.classList.add('on'); }
+    var arr = Array.from(selected);
+    document.getElementById('debug').textContent = arr.length ? '선택됨: ' + arr.join(', ') : '선택된 경험 없음';
+  });
+
+  function show(id, visible){
+    var el = document.getElementById(id);
+    if(visible) el.classList.add('show'); else el.classList.remove('show');
+  }
+
+  function setLoading(on){
+    isLoading = on;
+    var btn = document.getElementById('goBtn');
+    btn.disabled = on;
+    btn.textContent = on ? '탐색 중...' : '장소 찾기 →';
+    show('loading', on);
+    if(on){ show('errBox',false); show('emptyBox',false); show('resultCount',false); document.getElementById('cardArea').innerHTML=''; }
+  }
+
+  function normalizeCategory(raw){
+    if(!raw) return '자연·힐링';
+    for(var i=0;i<VALID_CATS.length;i++){ if(raw.indexOf(VALID_CATS[i])>-1) return VALID_CATS[i]; }
+    var m = {'자연':'자연·힐링','힐링':'자연·힐링','교육':'교육·체험','체험':'교육·체험','문화':'문화·예술','예술':'문화·예술','시장':'시장·쇼핑','쇼핑':'시장·쇼핑','놀이':'놀이·액티비티','먹거리':'먹거리 중심','축제':'축제·이벤트','이벤트':'축제·이벤트'};
+    for(var k in m){ if(raw.indexOf(k)>-1) return m[k]; }
+    return '자연·힐링';
+  }
+
+  function renderCards(places){
+    document.getElementById('resultCount').textContent = places.length + '곳을 찾았어요';
+    show('resultCount', true);
+    document.getElementById('cardArea').innerHTML = '<div class="card-grid">' + places.map(function(p){
+      var cat = normalizeCategory(p.category);
+      return '<div class="card">' +
+        '<div class="card-header">' +
+          '<p class="card-name">' + (p.name||'') + '</p>' +
+          '<div class="card-badges">' +
+            '<span class="card-indoor">' + (p.indoor||'') + '</span>' +
+            (p.verified ? '<span class="verified-badge">검증됨</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="card-tag ' + tagMap[cat] + '">' + cat + '</span>' +
+        '<p class="card-loc">' + (p.location||'') + '</p>' +
+        '<p class="card-desc">' + (p.desc||'') + '</p>' +
+        (p.baby_point ? '<p class="card-baby">영아 포인트: ' + p.baby_point + '</p>' : '') +
+        (p.cost ? '<p class="card-cost">비용: ' + p.cost + '</p>' : '') +
+        (p.tip ? '<p class="card-tip">팁: ' + p.tip + '</p>' : '') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
+  document.getElementById('goBtn').addEventListener('click', async function(){
+    if(isLoading) return;
+    var filters = {
+      weather: document.getElementById('f-weather').value,
+      distance: document.getElementById('f-dist').value,
+      budget: document.getElementById('f-budget').value,
+      indoor: document.getElementById('f-indoor').value,
+      age: document.getElementById('f-age').value,
+      categories: Array.from(selected),
+    };
+    setLoading(true);
+    try {
+      var res = await fetch(PROXY, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ filters })
+      });
+      if(!res.ok){
+        var err = await res.json().catch(function(){return {};});
+        throw new Error(err.error || '서버 오류 ' + res.status);
+      }
+      var data = await res.json();
+      var places = data.places;
+      if(!places || !places.length){ show('emptyBox', true); }
+      else { renderCards(places); }
+    } catch(e){
+      var eb = document.getElementById('errBox');
+      eb.textContent = '오류: ' + e.message;
+      show('errBox', true);
+    } finally {
+      setLoading(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,794 @@
+[
+  {
+    "name": "국립해양박물관",
+    "location": "부산 영도구",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "유모차 대여, 수유실, 어린이박물관, 아기 휴게공간, 낮은 체험 난이도",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "어린이박물관",
+      "아쿠아리움",
+      "체험"
+    ],
+    "source_url": "https://m.blog.naver.com/cjswosla115/223413886174",
+    "cost": "무료"
+  },
+  {
+    "name": "국립부산과학관",
+    "location": "부산 기장군",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "영아를 위한 새싹누리관과 수유실, 유모차 대여 등 편의시설이 잘 갖춰져 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "새싹누리관",
+      "기저귀교환대",
+      "어린이과학관"
+    ],
+    "source_url": "https://www.sciport.or.kr/kor/CMS/Contents/Contents.do?mCode=MN002",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "부산시민공원",
+    "location": "부산 부산진구",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여가 가능하며 넓은 공간에서 아기와 산책하기 좋습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "산책",
+      "모래놀이터"
+    ],
+    "source_url": "https://mom-mom.net/travel/places/686ce8b0617dbb59a0f1b95d",
+    "cost": "무료"
+  },
+  {
+    "name": "SEA LIFE 부산아쿠아리움",
+    "location": "부산 해운대구",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "수유실, 기저귀교환대 등 편의시설이 잘 갖춰져 있으며, 유모차 반입이 가능하고 엘리베이터 이용이 편리하여 영아 동반에 적합합니다. 실내 공간으로 날씨와 상관없이 방문할 수 있으며, 움직이는 물고기를 통해 시각 발달 자극과 정서적 안정감을 제공합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "아기",
+      "실내",
+      "엘리베이터"
+    ],
+    "source_url": "https://m.blog.naver.com/ddokkong_y/224153081560?rvid=C2ADC981010C002F4B7966C22C340CB2CBC0&targetKeyword=%EB%B6%80%EC%82%B0%EC%95%84%EA%B8%B0%EB%9E%91",
+    "cost": "5만원 이하"
+  },
+  {
+    "name": "부산시립미술관",
+    "location": "부산 해운대구",
+    "category": "문화·예술",
+    "indoor": "실내",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 가능하며, 7세 미만 어린이는 무료 관람입니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "어린이갤러리"
+    ],
+    "source_url": "https://art.busan.go.kr/index.nm?menuCd=1",
+    "cost": "무료"
+  },
+  {
+    "name": "부산현대미술관",
+    "location": "부산 사하구",
+    "category": "문화·예술",
+    "indoor": "실내",
+    "baby_point": "수유실, 아기 휴게공간, 넓은 전시실, 어린이 도서관(사전 예약제, 4세 이상 권장)이 있어 영아 동반 관람에 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "아기",
+      "영아",
+      "미술관"
+    ],
+    "source_url": "https://gowithkid.co.kr/places/busan_09",
+    "cost": "무료"
+  },
+  {
+    "name": "을숙도 생태공원",
+    "location": "부산 사하구",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "유모차 이동이 편리한 넓은 평지 길과 유아 숲 체험원, 수유실, 기저귀교환대, 유모차 보관소가 있는 들락날락 시설이 있어 영아 동반에 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "평지",
+      "유아 숲 체험원",
+      "들락날락"
+    ],
+    "source_url": "https://blog.naver.com/db3526/223290365353",
+    "cost": "무료"
+  },
+  {
+    "name": "롯데월드 어드벤처 부산",
+    "location": "부산 기장군",
+    "category": "놀이·액티비티",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 등 영아 편의시설이 잘 갖춰져 있으며, 19개월 아기 동반 후기에서 유모차 이용 및 낮은 난이도의 놀이기구 탑승이 가능하다고 언급됩니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "아기",
+      "놀이기구"
+    ],
+    "source_url": "https://blog.naver.com/PostView.naver?blogId=kbj1130&logNo=224053634123",
+    "cost": "그 이상"
+  },
+  {
+    "name": "부산시청 들락날락",
+    "location": "부산 연제구",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "돌 전 아기들도 유모차 보관 후 자유롭게 기어다니며 놀 수 있고, 수유실 등 편의시설이 잘 갖춰진 실내 복합문화공간입니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "도서",
+      "체험",
+      "미디어아트"
+    ],
+    "source_url": "https://m.blog.naver.com/shin_suyeon/224228856427?rvid=045BAEA8ADD8DA9A12957707F7CE007402B&targetKeyword=%EB%93%A4%EB%9D%BD%EB%82%A0%EB%9D%BD",
+    "cost": "무료"
+  },
+  {
+    "name": "부산광역시육아종합지원센터",
+    "location": "부산 연제구",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "영아놀이실, 수유실, 유모차 보관소 등 영아 편의시설이 잘 갖춰져 있으며, 영아 대상 베이비마사지 프로그램 등 교육 및 체험 프로그램이 운영됩니다.",
+    "keywords": [
+      "영아놀이실",
+      "수유실",
+      "유모차",
+      "베이비마사지",
+      "장난감도서관"
+    ],
+    "source_url": "https://busan.childcare.go.kr/ccef/main.jsp",
+    "cost": "무료"
+  },
+  {
+    "name": "국립수산과학관",
+    "location": "부산 기장군",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "매점에 수유실과 기저귀교환대가 있으며 유모차 대여가 가능하고, 터치스크린 등 어린아이도 즐길 수 있는 체험 시설이 많습니다.",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "유모차",
+      "체험",
+      "무료"
+    ],
+    "source_url": "https://mom-mom.net/travel/places/64b4a21043cc41558394eb24",
+    "cost": "무료"
+  },
+  {
+    "name": "해운대해수욕장",
+    "location": "부산 해운대구",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "유모차 이동이 편리한 해변 산책로가 잘 조성되어 있으며, 야외에서 아기와 함께 자연을 즐기기 좋습니다.",
+    "keywords": [
+      "유모차",
+      "아기",
+      "해변",
+      "산책"
+    ],
+    "source_url": "https://blog.naver.com/PostView.naver?blogId=ssr_1015&logNo=223541951361",
+    "cost": "무료"
+  },
+  {
+    "name": "해운대 블루라인파크",
+    "location": "부산 해운대구",
+    "category": "놀이·액티비티",
+    "indoor": "혼합",
+    "baby_point": "유모차 탑승 가능, 기저귀 교환대 설치, 36개월 미만 영아 무료 탑승 가능",
+    "keywords": [
+      "유모차",
+      "기저귀교환대",
+      "아기랑",
+      "해변열차",
+      "스카이캡슐"
+    ],
+    "source_url": "https://www.bluelinepark.com/faqList.do",
+    "cost": "그 이상"
+  },
+  {
+    "name": "신세계 센텀시티",
+    "location": "부산 해운대구",
+    "category": "시장·쇼핑",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 서비스, 영풍문고 어린이 공간, 야외 놀이터 주라지 등 영아 동반 편의시설 및 놀이 공간이 잘 갖춰져 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "어린이 공간",
+      "주라지"
+    ],
+    "source_url": "https://m.blog.naver.com/helpmesister/223209860927",
+    "cost": "무료"
+  },
+  {
+    "name": "롯데백화점 부산본점",
+    "location": "부산 부산진구",
+    "category": "시장·쇼핑",
+    "indoor": "실내",
+    "baby_point": "유아휴게실, 수유실, 기저귀교환대, 유모차 대여 서비스, 아기의자 및 아기식기 제공 식당 등 영아 동반 편의시설이 잘 갖춰져 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "아기의자",
+      "유아휴게실",
+      "기저귀교환대"
+    ],
+    "source_url": "https://mystardays.com/2026/01/02/lotte-busan-main-baby-lounge-review/",
+    "cost": "무료"
+  },
+  {
+    "name": "롯데백화점 광복점 아쿠아몰",
+    "location": "부산 중구",
+    "category": "시장·쇼핑",
+    "indoor": "실내",
+    "baby_point": "본관 8층과 아쿠아몰 10층에 수유실, 기저귀교환대, 유아휴게실이 잘 갖춰져 있으며, 유모차 대여도 가능해 영아 동반에 적합함",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "유모차",
+      "유아휴게실"
+    ],
+    "source_url": "https://m.blog.naver.com/eunlord/223436002750",
+    "cost": "무료"
+  },
+  {
+    "name": "W스퀘어",
+    "location": "부산 남구",
+    "category": "놀이·액티비티",
+    "indoor": "실내",
+    "baby_point": "수유실, 기저귀교환대, 아기의자 등 영아 편의시설이 잘 갖춰져 있으며, 키즈카페 및 아기 동반 가능한 카페가 많아 영아와 함께 방문하기 좋습니다.",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "유모차",
+      "아기",
+      "키즈카페"
+    ],
+    "source_url": "https://mom-mom.net/travel/places/64b5e56a7a024097aa204118",
+    "cost": "무료"
+  },
+  {
+    "name": "피아크 영도",
+    "location": "부산 영도구",
+    "category": "먹거리 중심",
+    "indoor": "혼합",
+    "baby_point": "유모차 반입 가능, 아기의자 있음, 기저귀 교환대 있음, 아이들 음료 및 아이스크림 판매, 넓은 공간",
+    "keywords": [
+      "유모차",
+      "아기의자",
+      "기저귀교환대",
+      "아이메뉴",
+      "넓은공간"
+    ],
+    "source_url": "https://blog.naver.com/PostView.nhn?blogId=xmffutwl808&logNo=224210710492&redirect=Dlog&widgetTypeCall=true",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "부산영화체험박물관",
+    "location": "부산 중구",
+    "category": "문화·예술",
+    "indoor": "실내",
+    "baby_point": "36개월 미만 영아 무료 입장 가능하며, 2층에 수유실과 기저귀교환대가 있어 영유아 동반이 편리합니다. 주차장에서 엘리베이터로 이동 동선이 수월합니다.",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "유모차",
+      "36개월 미만 무료"
+    ],
+    "source_url": "https://busanbom.kr/en/contents/01_info/sub0101.html",
+    "cost": "무료"
+  },
+  {
+    "name": "부산도서관 들락날락",
+    "location": "부산 사상구",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "돌 전 아기 책, 수유실, 유모차 보관, 3D 동화 체험관 등 영아를 위한 시설이 잘 갖춰져 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "아기",
+      "영아",
+      "도서관"
+    ],
+    "source_url": "https://m.blog.naver.com/shin_suyeon/224228856427?rvid=045BAEA8ADD82DA9A12957707F7CE007402B&targetKeyword=%EB%B6%80%EC%82%B0%EC%95%84%EA%B8%B0%EB%9E%99",
+    "cost": "무료"
+  },
+  {
+    "name": "삼정타워 서면 놀이똥산·런닝맨",
+    "location": "부산 부산진구",
+    "category": "놀이·액티비티",
+    "indoor": "실내",
+    "baby_point": "36개월 미만 영유아 무료입장, 유모차 보관소, 수유실, 기저귀 교환대, 정수기 구비",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "영유아무료입장"
+    ],
+    "source_url": "https://m.blog.naver.com/mykym79/223405617370",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "F1963",
+    "location": "부산 수영구",
+    "category": "문화·예술",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀 교환대, 아기의자, 유모차 이동이 용이한 넓은 동선, 쾌적한 실내 온도 유지 등 영아 편의시설이 잘 갖춰져 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀 교환대",
+      "아기의자",
+      "넓은 동선"
+    ],
+    "source_url": "https://46455180.tistory.com/27",
+    "cost": "무료"
+  },
+  {
+    "name": "이케아 동부산점",
+    "location": "부산 기장군",
+    "category": "시장·쇼핑",
+    "indoor": "실내",
+    "baby_point": "1층과 3층에 수유실이 잘 갖춰져 있으며, 기저귀 교환대, 전자레인지, 세면대 등 편의시설이 훌륭합니다. 레스토랑도 아기 동반에 적합합니다.",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "전자레인지",
+      "유모차",
+      "아기"
+    ],
+    "source_url": "https://blog.naver.com/PostView.naver?blogId=yoonjjung93&logNo=224163669470&redirect=Dlog",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "신세계 부산프리미엄아울렛",
+    "location": "부산 기장군",
+    "category": "시장·쇼핑",
+    "indoor": "혼합",
+    "baby_point": "유모차 대여, 유아 휴게실, 키즈 편의 시설(회전목마, 미니트레인, 어린이 놀이터)이 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "유아 휴게실",
+      "어린이 놀이터",
+      "회전목마"
+    ],
+    "source_url": "https://app.premiumoutlets.co.kr/rpage/service-info",
+    "cost": "무료"
+  },
+  {
+    "name": "김해가야테마파크",
+    "location": "경남 김해시",
+    "category": "놀이·액티비티",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 및 이동이 편리하며, 아기 휴게공간이 잘 갖춰져 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "아기침대",
+      "전자레인지"
+    ],
+    "source_url": "https://access.visitkorea.or.kr/opentour/detail.do?cotId=65f8b574-5509-4eef-92f5-ec27efef7285",
+    "cost": "5만원 이하"
+  },
+  {
+    "name": "김해가야랜드",
+    "location": "경남 김해시",
+    "category": "놀이·액티비티",
+    "indoor": "혼합",
+    "baby_point": "24개월 미만 영아 무료입장 가능하며, 영유아를 위한 놀이기구가 많고 유모차 대여 및 수유실이 마련되어 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "놀이기구",
+      "아기",
+      "영유아"
+    ],
+    "source_url": "http://gaya-land.com/html/sub04_07.html",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "국립김해박물관",
+    "location": "경남 김해시",
+    "category": "문화·예술",
+    "indoor": "실내",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 가능, 어린이박물관 운영, 낮은 체험 난이도",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "어린이박물관",
+      "체험",
+      "아기"
+    ],
+    "source_url": "https://blog.naver.com/andbeloved/223370982609",
+    "cost": "무료"
+  },
+  {
+    "name": "클레이아크김해미술관",
+    "location": "경남 김해시",
+    "category": "문화·예술",
+    "indoor": "혼합",
+    "baby_point": "수유실, 기저귀교환대, 아기 변기, 유모차 대여, 야외 산책로, 어린이 예술놀이터가 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "산책",
+      "어린이 예술놀이터"
+    ],
+    "source_url": "https://blog.naver.com/qndqnd88/222040976017?viewType=pc",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "김해목재문화박물관",
+    "location": "경남 김해시",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "영유아 대상의 꿈크는나무놀이터 운영, 수유실, 기저귀교환대, 전자레인지 등 영아 편의시설 완비.",
+    "keywords": [
+      "수유실",
+      "기저귀교환대",
+      "유모차",
+      "영유아",
+      "나무놀이터"
+    ],
+    "source_url": "https://access.visitkorea.or.kr/ms/detail.do?cotId=26378c20-2303-48b7-a70c-cb43aecaaa91",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "봉하마을",
+    "location": "경남 김해시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "유모차 이동이 편리하고, 수유실 및 유모차 대여가 가능하며, 넓은 야외 공간에서 산책하기 좋습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "산책",
+      "잔디밭",
+      "야외"
+    ],
+    "source_url": "https://blog.naver.com/aneofh/224039765231",
+    "cost": "무료"
+  },
+  {
+    "name": "김해낙동강레일파크",
+    "location": "경남 김해시",
+    "category": "놀이·액티비티",
+    "indoor": "혼합",
+    "baby_point": "36개월 미만 영아는 아기띠 착용 후 레일바이크 탑승 가능하며 대여도 가능. 수유실과 열차카페가 있어 편의성이 좋음.",
+    "keywords": [
+      "아기띠",
+      "수유실",
+      "유모차",
+      "열차카페",
+      "와인동굴"
+    ],
+    "source_url": "https://mom-mom.net/travel/places/65b06f0e48b2d35db70ea321",
+    "cost": "5만원 이하"
+  },
+  {
+    "name": "김해연지공원",
+    "location": "경남 김해시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "유모차 이동이 편리하며, 수유실과 영유아 놀이터가 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "산책",
+      "놀이터",
+      "아기"
+    ],
+    "source_url": "https://blog.naver.com/exit0216/223644545066",
+    "cost": "무료"
+  },
+  {
+    "name": "양산시립박물관 어린이박물관",
+    "location": "경남 양산시",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "수유실, 유모차 대여 등 영아 동반 편의시설이 잘 갖춰져 있으며, 어린이 박물관 내 모래 놀이, 편백 놀이터 등 낮은 난이도의 체험 공간이 있습니다.",
+    "keywords": [
+      "수유실",
+      "유모차",
+      "모래놀이",
+      "편백놀이터",
+      "어린이박물관"
+    ],
+    "source_url": "https://walk-turtle.tistory.com/38",
+    "cost": "무료"
+  },
+  {
+    "name": "양산 황산공원",
+    "location": "경남 양산시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "수유실, 기저귀교환대, 유모차 이동이 편리하며, 아이와 함께 산책하고 놀기 좋은 공간이 많음.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "놀이터",
+      "미니기차",
+      "산책"
+    ],
+    "source_url": "https://m.blog.naver.com/wanimom_2021/223235421819",
+    "cost": "무료"
+  },
+  {
+    "name": "양산 법기수원지",
+    "location": "경남 양산시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "편백나무 숲에서 맑은 공기를 마시며 산책하기 좋으며, 데크길이 있어 걷는 아기와 동반하기 적합합니다. 다만, 댐 상부로 이동 시 계단이 많아 유모차 이용이 어려울 수 있습니다.",
+    "keywords": [
+      "유모차",
+      "산책",
+      "편백나무",
+      "아기",
+      "힐링"
+    ],
+    "source_url": "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=8a731a9d-d57b-42d7-b943-172825857730",
+    "cost": "무료"
+  },
+  {
+    "name": "양산 디자인공원",
+    "location": "경남 양산시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "넓은 잔디광장과 산책로가 잘 조성되어 유모차 이동이 편리하며, 어린이 놀이터와 물놀이장이 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "산책",
+      "놀이터",
+      "물놀이장",
+      "잔디광장"
+    ],
+    "source_url": "https://www.instagram.com/p/DWnSN9OiqyT/",
+    "cost": "무료"
+  },
+  {
+    "name": "양산 워터파크 공원",
+    "location": "경남 양산시",
+    "category": "놀이·액티비티",
+    "indoor": "실외",
+    "baby_point": "수유실, 야외샤워장 등 편의시설이 잘 갖춰져 있으며, 유아 풀(수심 50cm)이 있어 영아도 보호자와 함께 안전하게 물놀이를 즐길 수 있습니다.",
+    "keywords": [
+      "물놀이",
+      "수유실",
+      "야외샤워장",
+      "유아풀",
+      "보호자 동반"
+    ],
+    "source_url": "https://www.yangsanilbo.com/news/articleView.html?idxno=63067",
+    "cost": "무료"
+  },
+  {
+    "name": "창원수목원",
+    "location": "경남 창원시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "유모차 이동이 편리한 산책로와 수유실 및 기저귀 교환대가 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "산책",
+      "아기",
+      "아이"
+    ],
+    "source_url": "https://blog.naver.com/dossiyam/223251219108",
+    "cost": "무료"
+  },
+  {
+    "name": "진해해양공원",
+    "location": "경남 창원시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "유모차 이동이 편리하며, 수유실과 유모차 대여가 가능하고, 만 5세 미만 영유아는 무료 입장이 가능합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "산책",
+      "아기",
+      "영아"
+    ],
+    "source_url": "https://blog.naver.com/kim_zacga/223551129999",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "창원과학체험관",
+    "location": "경남 창원시",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "영유아 전시관 관람료 면제, 유아차 대여 가능, 화장실에 기저귀교환대 있음.",
+    "keywords": [
+      "유모차",
+      "기저귀교환대",
+      "영유아 관람료 면제",
+      "실내"
+    ],
+    "source_url": "https://www.cwsc.go.kr/sub02/sub01_01.php",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "경남도립미술관",
+    "location": "경남 창원시",
+    "category": "문화·예술",
+    "indoor": "실내",
+    "baby_point": "수유실, 기저귀교환대, 유모차 대여 및 이동 편의성이 좋고, 아기와 함께 관람한 후기가 다수 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "기저귀교환대",
+      "아기랑",
+      "무료관람"
+    ],
+    "source_url": "https://blog.naver.com/PostView.nhn?blogId=gksdkfma2485&logNo=224038804200&redirect=Dlog&widgetTypeCall=true",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "창원단감테마공원",
+    "location": "경남 창원시",
+    "category": "교육·체험",
+    "indoor": "혼합",
+    "baby_point": "수유실과 기저귀교환대, 넓은 잔디마당, 유모차 산책로가 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "잔디마당",
+      "산책",
+      "체험"
+    ],
+    "source_url": "https://changwon.go.kr/tour/index.do?tourProgramNo=71&page.pageNo=1&menuCode=001_003000000000&search.searchKeyword=%ED%85%8C%EB%A7%88%EA%B3%B5%EC%9B%90",
+    "cost": "무료"
+  },
+  {
+    "name": "창원 3·15해양누리공원",
+    "location": "경남 창원시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "유모차 이동이 용이하며, 공원 내 대한민국민주주의전당에 수유실 및 유모차 대여가 가능합니다. 놀이터와 물놀이장이 있어 아이와 함께 활동하기 좋습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "놀이터",
+      "산책",
+      "물놀이장"
+    ],
+    "source_url": "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=285a8320-310b-470a-a373-184251be7fc9",
+    "cost": "무료"
+  },
+  {
+    "name": "주남저수지",
+    "location": "경남 창원시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "산책로가 평탄하여 유모차 이용이 편리하며, 생태학습관 등 실내 공간도 있어 가족 나들이에 적합합니다. 수유실과 기저귀교환대가 없으므로 미리 준비해야 합니다.",
+    "keywords": [
+      "유모차",
+      "산책",
+      "생태학습관",
+      "람사르문화관",
+      "주남환경학교"
+    ],
+    "source_url": "https://mom-mom.net/travel/places/665fcb71d1a99e3ba71eabbd",
+    "cost": "무료"
+  },
+  {
+    "name": "꿈키움동산 어린이농촌테마체험관",
+    "location": "경남 진주시",
+    "category": "교육·체험",
+    "indoor": "혼합",
+    "baby_point": "블로그 후기에서 영아 동반에 적합함을 명시하며, 어린아이들도 많이 방문하고 낮은 난이도의 농촌 체험 및 키즈카페 같은 공간이 있어 영아 동반 가족에게 적합합니다.",
+    "keywords": [
+      "아기",
+      "유아",
+      "체험",
+      "키즈카페",
+      "농촌"
+    ],
+    "source_url": "https://blog.naver.com/jijijiji00000/223613470493",
+    "cost": "무료"
+  },
+  {
+    "name": "거제식물원 정글돔",
+    "location": "경남 거제시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "6세 이하 영유아 무료 입장 가능하며, 매표소 옆에 수유실이 잘 갖춰져 있어 영아 동반 가족에게 편리합니다. 유모차 이동은 일부 구간에서 어려울 수 있으나 아기띠 사용 시 관람에 무리가 없습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "아기띠",
+      "계단"
+    ],
+    "source_url": "https://www.geoje.go.kr/gbg/index.geoje?menuCd=DOM_000008801001000000&&cpath=%2Fgbg",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "거제 버드앤피쉬체험장",
+    "location": "경남 거제시",
+    "category": "교육·체험",
+    "indoor": "실내",
+    "baby_point": "24개월 이하 유아 무료입장 가능. 평지에 길이 잘 되어 있어 유모차 이동에 문제 없으나, 유모차 대여는 불가합니다.",
+    "keywords": [
+      "실내",
+      "동물",
+      "체험",
+      "유모차"
+    ],
+    "source_url": "https://tour.geoje.go.kr/index.geoje?menuCd=DOM_000008502004015000",
+    "cost": "그 이상"
+  },
+  {
+    "name": "거제 맹종죽테마파크",
+    "location": "경남 거제시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "수유실 및 유모차 대여가 가능하나, 일부 구간은 유모차 이동이 어려울 수 있습니다.",
+    "keywords": [
+      "유모차",
+      "수유실",
+      "산책",
+      "대나무",
+      "숲"
+    ],
+    "source_url": "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=7cd73718-7bdd-4707-b2d8-1647f04c65ea",
+    "cost": "1만원 이하"
+  },
+  {
+    "name": "거제 매미성",
+    "location": "경남 거제시",
+    "category": "자연·힐링",
+    "indoor": "실외",
+    "baby_point": "유모차 이용이 가능하며, 아기랑 산책하기 좋은 바다 경관을 즐길 수 있습니다.",
+    "keywords": [
+      "유모차",
+      "아기",
+      "산책",
+      "바다",
+      "가족여행"
+    ],
+    "source_url": "https://m.blog.naver.com/rudwk3063/222527586416",
+    "cost": "무료"
+  },
+  {
+    "name": "통영케이블카",
+    "location": "경남 통영시",
+    "category": "자연·힐링",
+    "indoor": "혼합",
+    "baby_point": "10개월 영아 동반 후기가 있으며, 기저귀 갈이대와 휴게공간이 마련되어 있습니다. 유모차 동반 탑승이 가능합니다.",
+    "keywords": [
+      "유모차",
+      "기저귀 갈이대",
+      "휴게공간",
+      "케이블카",
+      "미륵산"
+    ],
+    "source_url": "https://www.welfarehello.com/community/hometownNews/960b9774-4f86-4c05-b6f2-61d6b11066bf",
+    "cost": "5만원 이하"
+  }
+]
