@@ -46,9 +46,9 @@ function buildNaverQuery(filters, patterns) {
     '6개월': 'age_6_months',
     '12개월': 'age_12_months',
     '24개월': 'age_24_months',
-    '36개월': 'age_36_months',
-    '48개월': 'age_48_months',
-    '60개월 이상': 'age_60_months',
+    '36개월': 'age_24_months',
+    '48개월': 'age_24_months',
+    '60개월 이상': 'age_24_months',
   };
   const weatherKeyMap = {
     '맑음, 야외 OK': 'weather_clear',
@@ -60,13 +60,6 @@ function buildNaverQuery(filters, patterns) {
   // Manus 패턴에서 쿼리 1개만 추출
   if (patterns) {
     const qp = patterns['1_actual_parent_search_query_patterns'];
-    // 먹거리·트렌드 카테고리 전용 쿼리
-    if (categories?.includes('먹거리 중심') && qp?.category_food?.[0]) {
-      return qp.category_food[0];
-    }
-    if (categories?.includes('트렌드') && qp?.category_trend?.[0]) {
-      return qp.category_trend[0];
-    }
     if (age && ageKeyMap[age] && qp?.[ageKeyMap[age]]?.[0]) {
       return qp[ageKeyMap[age]][0];
     }
@@ -131,7 +124,7 @@ ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'
 [영아 적합 기준] 있으면 좋음:${suitable.join(',')} / 없으면 제외:${unsuitable.join(',')}
 ${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',')}` : ''}
 
-부산/경남 장소 10곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
+부산/경남 장소 7곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
 
 순수 JSON만:
 [{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"부산 OO구 또는 경남 OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
@@ -145,10 +138,10 @@ ${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: 1200,
         messages: [{ role: 'user', content: prompt }],
       }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(25000),
     });
 
     if (!claudeRes.ok) {
