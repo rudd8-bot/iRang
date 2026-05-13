@@ -155,6 +155,7 @@ ${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',
     const s = clean.indexOf('['), e = clean.lastIndexOf(']');
     if (s === -1 || e === -1) throw new Error('JSON 파싱 실패');
 
+    console.log('Claude raw:', text);
     const places = JSON.parse(clean.slice(s, e + 1));
     res.status(200).json({ places });
 
