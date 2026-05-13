@@ -5,11 +5,9 @@ const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
-// Vercel 타임아웃 설정 (HIGH: 타임아웃)
 export const config = { maxDuration: 30 };
 
 function loadJSON(filename) {
-  // data/ 경로 불확실 문제 - 여러 경로 시도 (MEDIUM: data/ 경로)
   const candidates = [
     join(process.cwd(), 'data', filename),
     join('/var/task', 'data', filename),
@@ -29,7 +27,7 @@ async function searchNaver(query) {
         'X-Naver-Client-Id': NAVER_CLIENT_ID,
         'X-Naver-Client-Secret': NAVER_CLIENT_SECRET,
       },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -45,7 +43,7 @@ async function searchNaver(query) {
 }
 
 function buildNaverQueries(filters, patterns) {
-  const { weather, age, categories } = filters;
+  const { weather, age, categories, indoor } = filters;
 
   const weatherKeyMap = {
     '맑음, 야외 OK': 'weather_clear',
@@ -53,52 +51,49 @@ function buildNaverQueries(filters, patterns) {
     '겨울·추위, 실내 위주': 'weather_winter',
     '여름·더위, 더위 피하기': 'weather_summer',
   };
-
-  // 월령 전 구간 매핑 (MEDIUM: 36/48/60개월 미매핑)
   const ageKeyMap = {
     '100일 미만': 'age_100_days_under',
     '6개월': 'age_6_months',
     '12개월': 'age_12_months',
     '24개월': 'age_24_months',
-    '36개월': 'age_24_months', // 가장 가까운 패턴 활용
+    '36개월': 'age_24_months',
     '48개월': 'age_24_months',
     '60개월 이상': 'age_24_months',
   };
 
-  let queries = [];
-
-  if (patterns) {
-    const qp = patterns['1_actual_parent_search_query_patterns'];
-    if (qp) {
-      if (age && ageKeyMap[age] && qp[ageKeyMap[age]]) {
-        queries = queries.concat(qp[ageKeyMap[age]].slice(0, 2));
-      }
-      if (weather && weatherKeyMap[weather] && qp[weatherKeyMap[weather]]) {
-        queries = queries.concat(qp[weatherKeyMap[weather]].slice(0, 2));
-      }
-    }
-  }
-
-  // 트렌드 카테고리 선택시 최신 쿼리 추가
-  const isTrend = categories && categories.includes('트렌드');
-  if (isTrend) {
-    const year = new Date().getFullYear();
-    queries.push(`부산 아기랑 ${year} 요즘 핫한`);
-    queries.push(`경남 영아 나들이 ${year} 추천`);
-  }
-
-  // 기본 보완 쿼리 (MEDIUM: categories 빈 배열 → undefined 방지)
+  const isTrend = categories?.includes('트렌드');
   const validCats = (categories || []).filter(c => c && c !== '트렌드');
   const catStr = validCats[0] || '나들이';
   const ageStr = age || '아기랑';
 
-  queries.push(`부산 ${ageStr} ${catStr}`);
-  queries.push(`경남 ${ageStr} ${catStr}`);
+  // 실내외 조건이 우선 → 쿼리에 반영
+  const indoorStr = indoor === '실내 위주' ? ' 실내' : indoor === '실외 위주' ? ' 야외' : '';
 
-  return [...new Set(queries)].slice(0, 5);
+  let queries = [];
+
+  // Manus 패턴 기반 쿼리 (월령 또는 날씨 중 더 구체적인 것 1개만)
+  if (patterns) {
+    const qp = patterns['1_actual_parent_search_query_patterns'];
+    if (qp) {
+      if (age && ageKeyMap[age] && qp[ageKeyMap[age]]) {
+        queries.push(qp[ageKeyMap[age]][0]);
+      } else if (weather && weatherKeyMap[weather] && qp[weatherKeyMap[weather]]) {
+        queries.push(qp[weatherKeyMap[weather]][0]);
+      }
+    }
+  }
+
+  // 트렌드 쿼리
+  if (isTrend) {
+    queries.push(`부산 아기랑 ${new Date().getFullYear()} 요즘 핫한${indoorStr}`);
+  } else {
+    queries.push(`부산 ${ageStr} ${catStr}${indoorStr}`);
+  }
+
+  // 최대 2개로 제한 (타임아웃 방지)
+  return [...new Set(queries)].slice(0, 2);
 }
 
-// 날씨 매핑 정확도 개선 (MEDIUM: 날씨 매핑 불일치)
 function findWeatherPattern(weatherPatterns, weatherFilter) {
   if (!weatherPatterns || !weatherFilter) return null;
   return weatherPatterns.find(p => {
@@ -111,6 +106,13 @@ function findWeatherPattern(weatherPatterns, weatherFilter) {
   }) || null;
 }
 
+// 실내외 우선순위 판단
+function resolveIndoorPriority(indoor, weather) {
+  if (indoor && indoor !== '상관없음') return indoor; // 실내외 명시 → 우선
+  if (weather?.includes('실내')) return '실내 위주';  // 날씨에 실내 포함 → 적용
+  return null;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -118,7 +120,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // HIGH: filters 미검증 처리
   const { filters } = req.body || {};
   if (!filters || typeof filters !== 'object') {
     return res.status(400).json({ error: '필터 값이 없어요.' });
@@ -127,13 +128,12 @@ export default async function handler(req, res) {
   try {
     const patterns = loadJSON('patterns.json');
 
-    // 네이버 병렬 검색
+    // 네이버 검색 최대 2개 (타임아웃 방지)
     const queries = buildNaverQueries(filters, patterns);
     const naverResults = (
       await Promise.all(queries.map(q => searchNaver(q)))
-    ).flat().slice(0, 15);
+    ).flat().slice(0, 10);
 
-    // MEDIUM: 네이버 0개시 로그
     const naverSuccess = naverResults.length > 0;
 
     const suitabilityChecklist = patterns?.['2_baby_suitability_checklist'] || null;
@@ -141,52 +141,54 @@ export default async function handler(req, res) {
     const agePattern = patterns?.['4_age_place_type_patterns']
       ?.find(p => p.월령구간 === filters.age) || null;
     const weatherPattern = findWeatherPattern(
-      patterns?.['5_weather_place_type_patterns'],
-      filters.weather
+      patterns?.['5_weather_place_type_patterns'], filters.weather
     );
     const crowdingPatterns = patterns?.['6_crowding_time_patterns'] || null;
+
+    // 실내외 우선순위 결정
+    const resolvedIndoor = resolveIndoorPriority(filters.indoor, filters.weather);
 
     const isTrend = filters.categories?.includes('트렌드');
     const otherCats = (filters.categories || []).filter(c => c !== '트렌드');
 
-    // HIGH: 지역 이탈 방지 + LOW: 토큰 초과 방지 (max_tokens 3000으로 상향)
     const prompt = `당신은 부산/경남 영아 동반 가족 나들이 전문 추천 도우미입니다.
 
 [절대 규칙]
-- 반드시 부산광역시 또는 경상남도 내 장소만 추천해. 울산, 대구, 전라도 등 타 지역은 절대 포함 금지.
-- 실제 존재하는 장소만 추천해. 없는 장소 만들지 마.
+- 부산광역시 또는 경상남도 내 장소만 추천. 울산·대구·전라도 등 타 지역 절대 금지.
+- 실제 존재하는 장소만 추천.
+- 실내외 조건은 날씨 조건보다 우선한다. ${resolvedIndoor ? `"${resolvedIndoor}" 조건을 반드시 지켜.` : ''}
 
 [사용자 조건]
 - 날씨: ${filters.weather || '상관없음'}
+- 실내외: ${resolvedIndoor || '상관없음'} ← 우선 적용
 - 이동거리: ${filters.distance || '상관없음'}
 - 예산: ${filters.budget || '상관없음'}
-- 실내외: ${filters.indoor || '상관없음'}
 - 아이 월령: ${filters.age || '상관없음'}
-- 원하는 경험: ${otherCats.join(', ') || '상관없음'}${isTrend ? ' + 요즘 트렌드 장소 포함' : ''}
+- 원하는 경험: ${otherCats.join(', ') || '상관없음'}${isTrend ? ' + 요즘 트렌드 장소' : ''}
 
-[실시간 네이버 블로그 검색 결과 (${naverSuccess ? naverResults.length + '개' : '검색 실패 - 지식 기반으로 대체'})]
-${JSON.stringify(naverResults.slice(0, 12), null, 2)}
+[실시간 네이버 검색 결과 (${naverSuccess ? naverResults.length + '개' : '실패 - 지식 기반 대체'})]
+${JSON.stringify(naverResults, null, 2)}
 
-[영아 적합성 판단 기준 - 반드시 적용]
+[영아 적합성 판단 기준]
 적합: ${JSON.stringify(suitabilityChecklist?.suitable_if_present?.map(c => c.criterion))}
 부적합: ${JSON.stringify(suitabilityChecklist?.unsuitable_if_absent?.map(c => c.criterion))}
 
-[날씨 조건별 장소 유형]
+[날씨별 장소 유형]
 ${weatherPattern ? `추천: ${weatherPattern.추천장소유형?.join(', ')}\n피할 곳: ${weatherPattern.피해야할유형?.join(', ')}` : '없음'}
 
-[월령별 적합 장소 유형]
+[월령별 적합 유형]
 ${agePattern ? `적합: ${agePattern.적합장소유형?.join(', ')}\n부적합: ${agePattern.부적합장소유형?.join(', ')}` : '없음'}
 
-[불편 포인트 주의]
+[불편 포인트]
 ${inconveniencePatterns?.slice(0, 3).map(p => p.불편유형 + ': ' + p.발생장소유형?.join(', ')).join('\n') || '없음'}
 
 [혼잡도 팁]
-${crowdingPatterns?.slice(0, 3).map(p => p.장소유형 + ' → ' + p.추천시간대).join('\n') || '없음'}
+${crowdingPatterns?.slice(0, 2).map(p => p.장소유형 + ' → ' + p.추천시간대).join('\n') || '없음'}
 
-위 정보로 부산/경남 장소 10곳 추천. 네이버 결과 우선 활용. 부족하면 지식 보완.
-${isTrend ? '트렌드 항목은 최근 6개월 내 자주 언급된 신규·핫플 장소로 골라줘.' : ''}
+부산/경남 장소 10곳 추천. 네이버 결과 우선, 부족하면 지식 보완.
+${isTrend ? '트렌드 항목: 최근 6개월 내 자주 언급된 신규·핫플 장소.' : ''}
 
-순수 JSON 배열만 반환. 마크다운 금지.
+순수 JSON 배열만. 마크다운 금지.
 [{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"부산 OO구 또는 경남 OO시","desc":"두 줄 이내","baby_point":"영아 포인트 한 줄","tip":"방문 팁 한 줄","indoor":"실내 또는 실외 또는 혼합","cost":"무료 또는 1만원 이하 또는 5만원 이하 또는 그 이상"}]`;
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -198,15 +200,14 @@ ${isTrend ? '트렌드 항목은 최근 6개월 내 자주 언급된 신규·핫
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000, // LOW: 토큰 초과 방지
+        max_tokens: 3000,
         messages: [{ role: 'user', content: prompt }],
       }),
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(20000),
     });
 
     if (!claudeRes.ok) {
       const err = await claudeRes.json().catch(() => ({}));
-      // LOW: 에러 메시지 누락 방지
       throw new Error('Claude API 오류: ' + (err.error?.message || err.error?.type || claudeRes.status));
     }
 
