@@ -46,9 +46,9 @@ function buildNaverQuery(filters, patterns) {
     '6개월': 'age_6_months',
     '12개월': 'age_12_months',
     '24개월': 'age_24_months',
-    '36개월': 'age_24_months',
-    '48개월': 'age_24_months',
-    '60개월 이상': 'age_24_months',
+    '36개월': 'age_36_months',
+    '48개월': 'age_48_months',
+    '60개월 이상': 'age_60_months',
   };
   const weatherKeyMap = {
     '맑음, 야외 OK': 'weather_clear',
@@ -60,6 +60,13 @@ function buildNaverQuery(filters, patterns) {
   // Manus 패턴에서 쿼리 1개만 추출
   if (patterns) {
     const qp = patterns['1_actual_parent_search_query_patterns'];
+    // 먹거리·트렌드 카테고리 전용 쿼리
+    if (categories?.includes('먹거리 중심') && qp?.category_food?.[0]) {
+      return qp.category_food[0];
+    }
+    if (categories?.includes('트렌드') && qp?.category_trend?.[0]) {
+      return qp.category_trend[0];
+    }
     if (age && ageKeyMap[age] && qp?.[ageKeyMap[age]]?.[0]) {
       return qp[ageKeyMap[age]][0];
     }
