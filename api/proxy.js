@@ -114,7 +114,7 @@ export default async function handler(req, res) {
 
     const prompt = `부산/경남 영아 동반 나들이 추천 도우미.
 
-[규칙] 부산광역시·경상남도 장소만. 울산·대구·전라도 등 타지역 절대 금지. 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}
+[규칙] 부산광역시·경상남도 장소만. 울산광역시는 경남이 아님. 울산·대구·전라도 등 타지역 절대 금지. 경남은 창원·김해·양산·거제·통영·진주·사천 등 포함. 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}
 
 [조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}
 
@@ -124,7 +124,7 @@ ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'
 [영아 적합 기준] 있으면 좋음:${suitable.join(',')} / 없으면 제외:${unsuitable.join(',')}
 ${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',')}` : ''}
 
-부산/경남 장소 10곳 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
+부산/경남 장소 10곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
 
 순수 JSON만:
 [{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"부산 OO구 또는 경남 OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
