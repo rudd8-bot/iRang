@@ -72,6 +72,8 @@
   .t-play { background: #FAECE7; color: #993C1D; }
   .t-food { background: #FBEAF0; color: #993556; }
   .t-festival { background: #E1F5EE; color: #0F6E56; }
+  .t-trend { background: #FFF0E6; color: #B34700; }
+  .trend-btn.on { background: #FFF0E6; color: #B34700; border-color: #FFBB99; }
 </style>
 </head>
 <body>
@@ -142,6 +144,7 @@
     <button type="button" class="cat-btn" data-v="놀이·액티비티">놀이·액티비티</button>
     <button type="button" class="cat-btn" data-v="먹거리 중심">먹거리 중심</button>
     <button type="button" class="cat-btn" data-v="축제·이벤트">축제·이벤트</button>
+    <button type="button" class="cat-btn trend-btn" data-v="트렌드">🔥 트렌드</button>
   </div>
 
   <p class="debug" id="debug">선택된 경험 없음</p>
@@ -159,7 +162,7 @@
   var PROXY = '/api/proxy';
   var tagMap = {
     '자연·힐링':'t-nature','교육·체험':'t-edu','문화·예술':'t-culture',
-    '시장·쇼핑':'t-market','놀이·액티비티':'t-play','먹거리 중심':'t-food','축제·이벤트':'t-festival'
+    '시장·쇼핑':'t-market','놀이·액티비티':'t-play','먹거리 중심':'t-food','축제·이벤트':'t-festival','트렌드':'t-trend'
   };
   var VALID_CATS = Object.keys(tagMap);
   var selected = new Set();
