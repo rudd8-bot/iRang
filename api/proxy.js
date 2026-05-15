@@ -172,6 +172,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1200,
+        system: '당신은 JSON만 출력하는 API입니다. 반드시 JSON 배열만 출력하세요. 설명·사과·마크다운 코드블록 절대 금지. [ 로 시작해서 ] 로 끝나야 합니다.',
         messages: [{ role: 'user', content: prompt }],
       }),
       signal: AbortSignal.timeout(25000),
