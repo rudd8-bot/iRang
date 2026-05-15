@@ -77,8 +77,15 @@
 </style>
 </head>
 <body>
+<div id="secretPanel" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1a1a;padding:12px 16px">
+  <div style="max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px">
+    <span style="font-size:12px;color:#aaa;white-space:nowrap">접근 코드</span>
+    <input id="secretInput" type="password" placeholder="접근 코드 입력 후 Enter" style="flex:1;max-width:280px;background:#333;border:1px solid #555;border-radius:6px;padding:6px 10px;color:#fff;font-size:13px;outline:none">
+    <button onclick="saveSecret()" style="background:#185FA5;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">저장</button>
+  </div>
+</div>
 <div class="wrap">
-  <h1>아이랑 어디가지?</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><h1>아이랑 어디가지?</h1><button onclick="toggleSecret()" style="font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer">⚙ 접근코드</button></div>
   <p class="subtitle">부산·경남 영아 동반 나들이 맞춤 탐색기</p>
 
   <div class="filter-grid">
@@ -158,6 +165,24 @@
 </div>
 
 <script>
+// ── APP SECRET ──
+function getSecret() { return sessionStorage.getItem('app_secret') || ''; }
+function saveSecret() {
+  var v = document.getElementById('secretInput').value.trim();
+  if (!v) return;
+  sessionStorage.setItem('app_secret', v);
+  document.getElementById('secretPanel').style.display = 'none';
+}
+function toggleSecret() {
+  var p = document.getElementById('secretPanel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  if (!getSecret()) document.getElementById('secretPanel').style.display = 'block';
+  var si = document.getElementById('secretInput');
+  if (si) { si.addEventListener('keydown', function(e){ if(e.key==='Enter') saveSecret(); }); }
+});
+
 (function(){
   var PROXY = '/api/proxy';
   var tagMap = {
@@ -238,7 +263,7 @@
     try {
       var res = await fetch(PROXY, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'x-app-secret': getSecret()},
         body: JSON.stringify({ filters })
       });
       if(!res.ok){
