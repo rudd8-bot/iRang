@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>아이랑 어디가지? - 부산/경남 영아 나들이 탐색기</title>
+<title>아이랑 어디가지? - 전국 영아 나들이 맞춤 탐색기</title>
 <style>
   :root {
     --bg: #f8f7f4;
@@ -86,9 +86,21 @@
 </div>
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><h1>아이랑 어디가지?</h1><button onclick="toggleSecret()" style="font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer">⚙ 접근코드</button></div>
-  <p class="subtitle">부산·경남 영아 동반 나들이 맞춤 탐색기</p>
+  <p class="subtitle">지역별 영아 동반 나들이 맞춤 탐색기</p>
 
   <div class="filter-grid">
+    <div class="fg">
+      <label>지역</label>
+      <select id="f-region">
+        <option value="busan_gyeongnam">부산·경남</option>
+        <option value="daegu_gyeongbuk">대구·경북</option>
+        <option value="chungcheong_daejeon">충청·대전·세종</option>
+        <option value="gangwon">강원</option>
+        <option value="jeolla_gwangju">전라·광주</option>
+        <option value="jeju">제주</option>
+        <option value="seoul_gyeonggi">서울·경기</option>
+      </select>
+    </div>
     <div class="fg">
       <label>날씨/계절</label>
       <select id="f-weather">
@@ -250,6 +262,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('goBtn').addEventListener('click', async function(){
     if(isLoading) return;
     var filters = {
+      region: document.getElementById('f-region').value,
       weather: document.getElementById('f-weather').value,
       distance: document.getElementById('f-dist').value,
       budget: document.getElementById('f-budget').value,
