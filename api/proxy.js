@@ -38,6 +38,18 @@ const categoryKeyMap = {
   '트렌드':       'category_trend',
 };
 
+// 카테고리 → 한글 강제 지시문
+const categoryForceMap = {
+  '자연·힐링':    '자연공원·숲·계곡·바다·힐링 장소만. 식당·박물관 제외.',
+  '교육·체험':    '박물관·체험관·과학관·도서관 위주. 놀이시설 제외.',
+  '문화·예술':    '미술관·공연장·문화센터·전시관 위주.',
+  '시장·쇼핑':    '전통시장·쇼핑몰·백화점·아울렛 위주.',
+  '놀이·액티비티': '키즈카페·실내놀이터·테마파크·액티비티 위주.',
+  '먹거리 중심':  '식당·맛집·카페·베이커리 위주. 반드시 음식점만 추천.',
+  '축제·이벤트':  '현재 진행 중이거나 예정된 축제·이벤트·계절행사 위주.',
+  '트렌드':       '최근 6개월 내 SNS·블로그에서 주목받는 신규 핫플 위주.',
+};
+
 function loadJSON(filename) {
   const candidates = [
     join(process.cwd(), 'data', filename),
@@ -51,7 +63,7 @@ function loadJSON(filename) {
 
 async function searchNaver(query) {
   try {
-    const url = `https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(query)}&display=5&sort=date`;
+    const url = `https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(query)}&display=3&sort=date`;
     const res = await fetch(url, {
       headers: {
         'X-Naver-Client-Id': NAVER_CLIENT_ID,
@@ -75,6 +87,8 @@ function buildNaverQuery(filters, patterns) {
   const regionKey = region || 'busan_gyeongnam';
 
   const ageKeyMap = {
+    '100일 미만':  'age_100_days_under',
+    '6개월':       'age_6_months',
     '12개월':      'age_12_months',
     '24개월':      'age_24_months',
     '36개월':      'age_36_months',
@@ -155,7 +169,36 @@ export default async function handler(req, res) {
     const suitable = ['유모차 이동 가능', '수유실 또는 유아휴게실', '기저귀교환대', '낮은 자극·낮은 난이도'];
     const unsuitable = ['유모차 반입·이동 불가', '수유실·기저귀교환대 모두 없음', '소음·대기줄·혼잡이 심함'];
 
-    const prompt = `영아 동반 나들이 추천 도우미.\n\n[규칙] ${regionGuide} 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}\n\n[조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}\n\n[네이버 최신 후기]\n${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}\n\n[영아 적합 기준] 있으면 좋음:${suitable.join(',')} / 없으면 제외:${unsuitable.join(',')}\n\n${regionLabel} 장소 7곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}\n\n순수 JSON만:\n[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"${regionCity} OO구 또는 ${regionSub} OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
+    const agePattern = patterns?.['4_age_place_type_patterns']
+      ?.find(p => p.월령구간 === filters.age);
+
+    // 카테고리 강제 지시문 생성
+    const catForce = otherCats.length > 0
+      ? otherCats.map(c => categoryForceMap[c]).filter(Boolean).join(' ')
+      : '';
+
+    const prompt = `영아 동반 나들이 추천 도우미.
+
+[지역 규칙] ${regionGuide}
+위 지역 외 장소는 단 1곳도 포함 금지. location 필드 반드시 ${regionCity} 또는 ${regionSub} 행정구역으로 시작.
+
+[실내외] ${resolvedIndoor ? `"${resolvedIndoor}" 필수. 이 조건 위반 장소 제외.` : '무관'}
+
+[카테고리 강제] ${catForce || '카테고리 무관, 다양하게 추천'}
+카테고리 지정 시 해당 유형 장소만. 다른 유형 절대 혼입 금지.${isTrend ? ' 트렌드: 최근 6개월 SNS 핫플만.' : ''}
+
+[조건] 날씨:${filters.weather||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'}
+
+[네이버 최신 후기]
+${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}
+
+[영아 적합] 좋음:${suitable.join(',')} / 제외:${unsuitable.join(',')}
+${agePattern ? `[${filters.age} 적합 장소 유형] ${agePattern.적합장소유형?.join(',')}` : ''}
+
+${regionLabel} 장소 정확히 7곳. 네이버 결과 우선, 부족하면 지식 보완.
+
+순수 JSON 배열만 출력:
+[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"${regionCity} OO구 또는 ${regionSub} OO시","desc":"한 줄 설명","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
