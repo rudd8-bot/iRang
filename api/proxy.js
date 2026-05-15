@@ -187,9 +187,20 @@ export default async function handler(req, res) {
     const text = claudeData.content.filter(i => i.type === 'text').map(i => i.text).join('');
     const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
     const s = clean.indexOf('['), e = clean.lastIndexOf(']');
-    if (s === -1 || e === -1) throw new Error('JSON 파싱 실패');
+    if (s === -1 || e === -1) {
+      // Claude 원본 응답을 오류 메시지에 포함 (디버그용)
+      throw new Error('JSON 파싱 실패 | Claude 응답: ' + clean.slice(0, 200));
+    }
 
-    const places = JSON.parse(clean.slice(s, e + 1));
+    let places;
+    try {
+      places = JSON.parse(clean.slice(s, e + 1));
+    } catch (parseErr) {
+      throw new Error('JSON 구문 오류 | ' + parseErr.message + ' | 원문: ' + clean.slice(s, s+200));
+    }
+    if (!Array.isArray(places) || places.length === 0) {
+      throw new Error('빈 배열 반환 | Claude 응답: ' + clean.slice(0, 200));
+    }
     res.status(200).json({ places });
 
   } catch (err) {
