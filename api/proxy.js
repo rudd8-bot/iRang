@@ -7,6 +7,37 @@ const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
 export const config = { maxDuration: 60 };
 
+const regionLabelMap = {
+  busan_gyeongnam:      '부산광역시·경상남도',
+  daegu_gyeongbuk:      '대구광역시·경상북도',
+  chungcheong_daejeon:  '충청도·대전광역시·세종시',
+  gangwon:              '강원특별자치도',
+  jeolla_gwangju:       '전라도·광주광역시',
+  jeju:                 '제주특별자치도',
+  seoul_gyeonggi:       '서울특별시·경기도',
+};
+
+const regionGuideMap = {
+  busan_gyeongnam:     '부산광역시·경상남도(창원·김해·양산·거제·통영·진주·사천 포함). 울산·대구·전라도 등 타지역 절대 금지.',
+  daegu_gyeongbuk:     '대구광역시·경상북도(경주·포항·안동·구미·영주 포함). 부산·울산·경남 등 타지역 절대 금지.',
+  chungcheong_daejeon: '충청도·대전광역시·세종시(천안·청주·충주·공주·보령 포함). 전라도·경상도 등 타지역 절대 금지.',
+  gangwon:             '강원특별자치도(춘천·강릉·원주·속초·동해·삼척·평창 포함). 타 시도 절대 금지.',
+  jeolla_gwangju:      '전라도·광주광역시(전주·여수·순천·목포·광양 포함). 경상도·충청도 등 타지역 절대 금지.',
+  jeju:                '제주특별자치도(제주시·서귀포시). 육지 지역 절대 금지.',
+  seoul_gyeonggi:      '서울특별시·경기도(수원·성남·고양·용인·부천·광명 등 포함). 강원·충청 등 타 시도 절대 금지.',
+};
+
+const categoryKeyMap = {
+  '자연·힐링':    'category_nature',
+  '교육·체험':    'category_culture',
+  '문화·예술':    'category_culture',
+  '시장·쇼핑':    'category_nature',
+  '놀이·액티비티': 'category_nature',
+  '먹거리 중심':  'category_food',
+  '축제·이벤트':  'category_festival',
+  '트렌드':       'category_trend',
+};
+
 function loadJSON(filename) {
   const candidates = [
     join(process.cwd(), 'data', filename),
@@ -40,38 +71,49 @@ async function searchNaver(query) {
 }
 
 function buildNaverQuery(filters, patterns) {
-  const { weather, age, categories, indoor } = filters;
+  const { weather, age, categories, region } = filters;
+  const regionKey = region || 'busan_gyeongnam';
+
   const ageKeyMap = {
-    '100일 미만': 'age_100_days_under',
-    '6개월': 'age_6_months',
-    '12개월': 'age_12_months',
-    '24개월': 'age_24_months',
-    '36개월': 'age_36_months',
-    '48개월': 'age_48_months',
+    '100일 미만':  'age_100_days_under',
+    '6개월':       'age_6_months',
+    '12개월':      'age_12_months',
+    '24개월':      'age_24_months',
+    '36개월':      'age_36_months',
+    '48개월':      'age_48_months',
     '60개월 이상': 'age_60_months',
   };
   const weatherKeyMap = {
-    '맑음, 야외 OK': 'weather_clear',
-    '비·흐림, 실내 위주': 'weather_rainy',
-    '겨울·추위, 실내 위주': 'weather_winter',
+    '맑음, 야외 OK':          'weather_clear',
+    '비·흐림, 실내 위주':     'weather_rainy',
+    '겨울·추위, 실내 위주':   'weather_winter',
     '여름·더위, 더위 피하기': 'weather_summer',
   };
 
   if (patterns) {
-    const qp = patterns['1_actual_parent_search_query_patterns'];
-    if (age && ageKeyMap[age] && qp?.[ageKeyMap[age]]?.[0]) {
-      return qp[ageKeyMap[age]][0];
-    }
-    if (weather && weatherKeyMap[weather] && qp?.[weatherKeyMap[weather]]?.[0]) {
-      return qp[weatherKeyMap[weather]][0];
+    // ✅ 핵심 수정: patterns[regionKey] 로 읽기
+    const qp = patterns[regionKey] || {};
+
+    const ageKey = ageKeyMap[age];
+    if (ageKey && qp[ageKey]?.[0]) return qp[ageKey][0];
+
+    const weatherKey = weatherKeyMap[weather];
+    if (weatherKey && qp[weatherKey]?.[0]) return qp[weatherKey][0];
+
+    const cat = (categories || []).find(c => categoryKeyMap[c]);
+    if (cat) {
+      const catKey = categoryKeyMap[cat];
+      if (qp[catKey]?.[0]) return qp[catKey][0];
     }
   }
 
-  const indoorStr = indoor === '실내 위주' ? ' 실내' : indoor === '실외 위주' ? ' 야외' : '';
-  const validCats = (categories || []).filter(c => c && c !== '트렌드');
+  // 폴백
+  const regionLabel = regionLabelMap[regionKey];
+  const indoorStr = filters.indoor === '실내 위주' ? ' 실내' : filters.indoor === '실외 위주' ? ' 야외' : '';
   const isTrend = categories?.includes('트렌드');
-  if (isTrend) return `부산 아기랑 ${new Date().getFullYear()} 핫플${indoorStr}`;
-  return `부산 ${age || '아기랑'} ${validCats[0] || '나들이'}${indoorStr}`;
+  if (isTrend) return `${regionLabel.split('·')[0]} 아기랑 ${new Date().getFullYear()} 핫플${indoorStr}`;
+  const validCats = (categories || []).filter(c => c && c !== '트렌드');
+  return `${regionLabel.split('·')[0]} ${age || '아기랑'} ${validCats[0] || '나들이'}${indoorStr}`;
 }
 
 function resolveIndoor(indoor, weather) {
@@ -87,7 +129,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // APP_SECRET 검증
   const secret = req.headers['x-app-secret'];
   if (!secret || secret !== process.env.APP_SECRET) {
     return res.status(403).json({ error: '접근 권한이 없습니다.' });
@@ -107,13 +148,19 @@ export default async function handler(req, res) {
     const isTrend = filters.categories?.includes('트렌드');
     const otherCats = (filters.categories || []).filter(c => c !== '트렌드');
 
+    const regionKey = filters.region || 'busan_gyeongnam';
+    const regionLabel = regionLabelMap[regionKey] || '부산광역시·경상남도';
+    const regionGuide = regionGuideMap[regionKey] || regionGuideMap['busan_gyeongnam'];
+    const regionCity = regionLabel.split('·')[0];
+    const regionSub  = regionLabel.split('·')[1] || '';
+
     const suitable = ['유모차 이동 가능', '수유실 또는 유아휴게실', '기저귀교환대', '낮은 자극·낮은 난이도'];
     const unsuitable = ['유모차 반입·이동 불가', '수유실·기저귀교환대 모두 없음', '소음·대기줄·혼잡이 심함'];
 
     const agePattern = patterns?.['4_age_place_type_patterns']
       ?.find(p => p.월령구간 === filters.age);
 
-    const prompt = `부산/경남 영아 동반 나들이 추천 도우미.\n\n[규칙] 부산광역시·경상남도 장소만. 울산광역시는 경남이 아님. 울산·대구·전라도 등 타지역 절대 금지. 경남은 창원·김해·양산·거제·통영·진주·사천 등 포함. 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}\n\n[조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}\n\n[네이버 최신 후기]\n${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}\n\n[영아 적합 기준] 있으면 좋음:${suitable.join(',')} / 없으면 제외:${unsuitable.join(',')}\n${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',')}` : ''}\n\n부산/경남 장소 7곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}\n\n순수 JSON만:\n[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"부산 OO구 또는 경남 OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
+    const prompt = `영아 동반 나들이 추천 도우미.\n\n[규칙] ${regionGuide} 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}\n\n[조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}\n\n[네이버 최신 후기]\n${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}\n\n[영아 적합 기준] 있으면 좋음:${suitable.join(',')} / 없으면 제외:${unsuitable.join(',')}\n${agePattern ? `[${filters.age} 적합] ${agePattern.적합장소유형?.join(',')}` : ''}\n\n${regionLabel} 장소 7곳 추천. 카테고리 선택 시 해당 카테고리 장소만 추천. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}\n\n순수 JSON만:\n[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"${regionCity} OO구 또는 ${regionSub} OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
