@@ -7,8 +7,6 @@ const NAVER_SECRET     = process.env.NAVER_CLIENT_SECRET;
 const TOUR_API_KEY     = process.env.TOUR_API_KEY;
 const KAKAO_REST_KEY   = process.env.KAKAO_REST_KEY;
 
-export const config = { maxDuration: 60 };
-
 // ── 지역 설정 ──────────────────────────────────────────────
 const regionLabelMap = {
   busan_gyeongnam:     '부산광역시·경상남도',
@@ -265,6 +263,11 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: '접근 권한이 없습니다.' });
   }
 
+  if (!ANTHROPIC_KEY) {
+    console.error('ANTHROPIC_API_KEY 환경변수가 설정되지 않았습니다.');
+    return res.status(500).json({ error: 'API가 설정되지 않았습니다. 관리자에게 문의하세요.' });
+  }
+
   const { filters } = req.body || {};
   if (!filters || typeof filters !== 'object') {
     return res.status(400).json({ error: '필터 값이 없어요.' });
@@ -409,7 +412,7 @@ ${regionLabel} 장소 정확히 7곳.
     }
 
     if (!Array.isArray(places) || places.length === 0) {
-      throw new Error('빈 배열 반환');
+      return res.status(200).json({ places: [], debug: { naverCount: naverResults.length, tourCount: tourResults.length, kakaoCount: kakaoResults.length, totalData: uniqueResults.length, tourError: tourError || null } });
     }
 
     // ── 후처리: 타지역 필터 ──────────────────────────────
@@ -443,6 +446,7 @@ ${regionLabel} 장소 정확히 7곳.
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message || '알 수 없는 오류' });
+    console.error('proxy error:', err.message);
+    res.status(500).json({ error: '장소 검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
   }
 }

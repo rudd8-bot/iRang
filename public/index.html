@@ -175,12 +175,18 @@
 </div>
 
 <script>
+// ── HTML 이스케이프 ──
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
 // ── APP SECRET ──
 function getSecret() { return sessionStorage.getItem('app_secret') || ''; }
 function saveSecret() {
   var v = document.getElementById('secretInput').value.trim();
   if (!v) return;
   sessionStorage.setItem('app_secret', v);
+  document.getElementById('secretInput').value = '';
   document.getElementById('secretPanel').style.display = 'none';
 }
 function toggleSecret() {
@@ -243,18 +249,17 @@ document.addEventListener('DOMContentLoaded', function(){
       var cat = normalizeCategory(p.category);
       return '<div class="card">' +
         '<div class="card-header">' +
-          '<p class="card-name">' + (p.name||'') + '</p>' +
+          '<p class="card-name">' + escHtml(p.name) + '</p>' +
           '<div class="card-badges">' +
-            '<span class="card-indoor">' + (p.indoor||'') + '</span>' +
-            (p.verified ? '<span class="verified-badge">검증됨</span>' : '') +
+            '<span class="card-indoor">' + escHtml(p.indoor) + '</span>' +
           '</div>' +
         '</div>' +
-        '<span class="card-tag ' + tagMap[cat] + '">' + cat + '</span>' +
-        '<p class="card-loc">' + (p.location||'') + '</p>' +
-        '<p class="card-desc">' + (p.desc||'') + '</p>' +
-        (p.baby_point ? '<p class="card-baby">영아 포인트: ' + p.baby_point + '</p>' : '') +
-        (p.cost ? '<p class="card-cost">비용: ' + p.cost + '</p>' : '') +
-        (p.tip ? '<p class="card-tip">팁: ' + p.tip + '</p>' : '') +
+        '<span class="card-tag ' + tagMap[cat] + '">' + escHtml(cat) + '</span>' +
+        '<p class="card-loc">' + escHtml(p.location) + '</p>' +
+        '<p class="card-desc">' + escHtml(p.desc) + '</p>' +
+        (p.baby_point ? '<p class="card-baby">영아 포인트: ' + escHtml(p.baby_point) + '</p>' : '') +
+        (p.cost ? '<p class="card-cost">비용: ' + escHtml(p.cost) + '</p>' : '') +
+        (p.tip ? '<p class="card-tip">팁: ' + escHtml(p.tip) + '</p>' : '') +
       '</div>';
     }).join('') + '</div>';
   }
