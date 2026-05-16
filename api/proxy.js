@@ -132,18 +132,22 @@ async function searchTourAPI(regionKey, categories) {
   try {
     const results = await Promise.allSettled(
       areaCodes.map(areaCode => {
-        const url = new URL('https://apis.data.go.kr/B551011/KorService1/areaBasedList1');
-        url.searchParams.set('serviceKey', TOUR_API_KEY);
-        url.searchParams.set('areaCode', areaCode);
-        url.searchParams.set('contentTypeId', contentTypeId);
-        url.searchParams.set('numOfRows', '10');
-        url.searchParams.set('pageNo', '1');
-        url.searchParams.set('MobileOS', 'ETC');
-        url.searchParams.set('MobileApp', 'iRang');
-        url.searchParams.set('_type', 'json');
-        url.searchParams.set('arrange', 'Q'); // 평점순
+        // serviceKey는 이중인코딩 방지를 위해 직접 문자열 조합
+        const baseUrl = 'https://apis.data.go.kr/B551011/KorService1/areaBasedList1';
+        const params = [
+          `serviceKey=${TOUR_API_KEY}`,
+          `areaCode=${areaCode}`,
+          `contentTypeId=${contentTypeId}`,
+          `numOfRows=10`,
+          `pageNo=1`,
+          `MobileOS=ETC`,
+          `MobileApp=iRang`,
+          `_type=json`,
+          `arrange=Q`,
+        ].join('&');
+        const tourUrl = `${baseUrl}?${params}`;
 
-        return fetch(url.toString(), { signal: AbortSignal.timeout(5000) })
+        return fetch(tourUrl, { signal: AbortSignal.timeout(5000) })
           .then(r => r.ok ? r.json() : null)
           .then(d => {
             const items = d?.response?.body?.items?.item || [];
@@ -172,13 +176,18 @@ async function searchKakao(query, regionLabel) {
       headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` },
       signal: AbortSignal.timeout(4000),
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.error('카카오 오류:', res.status, errText.slice(0, 100));
+      return [];
+    }
     const data = await res.json();
     return (data.documents || []).map(d => ({
       title: d.place_name || '',
       description: `${d.address_name || ''} ${d.category_name || ''}`.trim(),
     }));
-  } catch {
+  } catch (e) {
+    console.error('카카오 예외:', e.message);
     return [];
   }
 }
@@ -324,6 +333,34 @@ ${regionLabel} 장소 정확히 7곳.
         max_tokens: 2500,
         system: '당신은 JSON만 출력하는 API입니다. 반드시 JSON 배열만 출력하세요. 설명·사과·마크다운 코드블록 절대 금지. [ 로 시작해서 ] 로 끝나야 합니다.',
         messages: [{ role: 'user', content: prompt }],
+        tools: [{
+          name: 'recommend_places',
+          description: '장소 추천 결과 반환',
+          input_schema: {
+            type: 'object',
+            properties: {
+              places: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name:       { type: 'string' },
+                    category:   { type: 'string', enum: ['자연·힐링','교육·체험','문화·예술','시장·쇼핑','놀이·액티비티','먹거리 중심','축제·이벤트','트렌드'] },
+                    location:   { type: 'string' },
+                    desc:       { type: 'string' },
+                    baby_point: { type: 'string' },
+                    tip:        { type: 'string' },
+                    indoor:     { type: 'string', enum: ['실내','실외','혼합'] },
+                    cost:       { type: 'string' },
+                  },
+                  required: ['name','category','location','indoor','desc']
+                }
+              }
+            },
+            required: ['places']
+          }
+        }],
+        tool_choice: { type: 'tool', name: 'recommend_places' },
       }),
       signal: AbortSignal.timeout(25000),
     });
@@ -334,18 +371,25 @@ ${regionLabel} 장소 정확히 7곳.
     }
 
     const claudeData = await claudeRes.json();
-    const text  = claudeData.content.filter(i => i.type === 'text').map(i => i.text).join('');
-    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
-    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
-    if (s === -1 || e === -1) {
-      throw new Error('JSON 파싱 실패 | Claude 응답: ' + clean.slice(0, 200));
-    }
 
+    // tool_use 응답 파싱 (enum 강제 사용 시)
     let places;
-    try {
-      places = JSON.parse(clean.slice(s, e + 1));
-    } catch (parseErr) {
-      throw new Error('JSON 구문 오류 | ' + parseErr.message);
+    const toolUseBlock = claudeData.content?.find(i => i.type === 'tool_use');
+    if (toolUseBlock) {
+      places = toolUseBlock.input?.places;
+    } else {
+      // 폴백: 텍스트 파싱
+      const text  = claudeData.content?.filter(i => i.type === 'text').map(i => i.text).join('') || '';
+      const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+      const s = clean.indexOf('['), e = clean.lastIndexOf(']');
+      if (s === -1 || e === -1) {
+        throw new Error('JSON 파싱 실패 | Claude 응답: ' + clean.slice(0, 200));
+      }
+      try {
+        places = JSON.parse(clean.slice(s, e + 1));
+      } catch (parseErr) {
+        throw new Error('JSON 구문 오류 | ' + parseErr.message);
+      }
     }
 
     if (!Array.isArray(places) || places.length === 0) {
