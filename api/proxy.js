@@ -378,7 +378,9 @@ ${regionLabel} 장소 정확히 7곳.
     if (toolUseBlock) {
       places = toolUseBlock.input?.places;
     } else {
-      // 폴백: 텍스트 파싱
+      // 폴백: 텍스트 파싱 (tool_use 없음 - enum 미적용 상태)
+      console.error('tool_use 블록 없음 - 텍스트 폴백 사용. content types:', 
+        claudeData.content?.map(i => i.type).join(','));
       const text  = claudeData.content?.filter(i => i.type === 'text').map(i => i.text).join('') || '';
       const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
       const s = clean.indexOf('['), e = clean.lastIndexOf(']');
