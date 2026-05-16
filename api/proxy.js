@@ -123,6 +123,7 @@ async function searchNaver(query, regionLabel) {
 // ── TourAPI 검색 ────────────────────────────────────────────
 async function searchTourAPI(regionKey, categories) {
   if (!TOUR_API_KEY) return [];
+  let tourError = null;
 
   const areaCodes = tourAreaCodeMap[regionKey] || ['6'];
   const contentTypeId = categories?.length > 0
@@ -148,20 +149,31 @@ async function searchTourAPI(regionKey, categories) {
         const tourUrl = `${baseUrl}?${params}`;
 
         return fetch(tourUrl, { signal: AbortSignal.timeout(5000) })
-          .then(r => r.ok ? r.json() : null)
-          .then(d => {
+          .then(async r => {
+            if (!r.ok) {
+              const txt = await r.text().catch(() => '');
+              tourError = `HTTP ${r.status}: ${txt.slice(0,100)}`;
+              return [];
+            }
+            const d = await r.json();
+            // TourAPI 오류 응답 체크
+            if (d?.response?.header?.resultCode !== '0000') {
+              tourError = `TourAPI 오류: ${d?.response?.header?.resultMsg}`;
+              return [];
+            }
             const items = d?.response?.body?.items?.item || [];
             return items.map(i => ({
               title: i.title || '',
               description: `${i.addr1 || ''} ${i.addr2 || ''}`.trim(),
             }));
           })
-          .catch(() => []);
+          .catch(e => { tourError = e.message; return []; });
       })
     );
-    return results.flatMap(r => r.value || []);
-  } catch {
-    return [];
+    const flat = results.flatMap(r => r.value || []);
+    return { data: flat, error: tourError };
+  } catch (e) {
+    return { data: [], error: e.message };
   }
 }
 
@@ -272,11 +284,13 @@ export default async function handler(req, res) {
     const otherCats      = (filters.categories || []).filter(c => c !== '트렌드');
 
     // ── 병렬 데이터 수집 ──────────────────────────────────
-    const [naverResults, tourResults, kakaoResults] = await Promise.all([
+    const [naverResults, tourResponse, kakaoResults] = await Promise.all([
       searchNaver(query, regionLabel),
       searchTourAPI(regionKey, otherCats),
       searchKakao(query, regionLabel),
     ]);
+    const tourResults = tourResponse?.data || tourResponse || [];
+    const tourError   = tourResponse?.error || null;
 
     // 전체 데이터 합치기 (중복 제거)
     const allResults = [...naverResults, ...tourResults, ...kakaoResults];
@@ -424,6 +438,7 @@ ${regionLabel} 장소 정확히 7곳.
         tourCount:  tourResults.length,
         kakaoCount: kakaoResults.length,
         totalData:  uniqueResults.length,
+        tourError:  tourError || null,
       }
     });
 
