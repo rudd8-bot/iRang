@@ -201,8 +201,7 @@ export default async function handler(req, res) {
 [규칙] ${regionGuide} 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}${districtClause}
 
 [조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}
-${ageChar ? `[월령 특성] ${ageChar}` : ''}
-
+${ageChar ? `[월령 특성] ${ageChar}\n` : ''}
 [네이버 최신 후기]
 ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}
 
