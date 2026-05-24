@@ -227,7 +227,9 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
     console.log('Claude raw:', text);
     console.log('District info:', districtInfo);
 
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    // 마크다운 코드 펜스 제거 후 JSON 배열 추출
+    const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
+    const jsonMatch = stripped.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       console.error('파싱 실패 - raw:', text.slice(0, 300));
       throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
@@ -235,7 +237,9 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
 
     let places;
     try {
-      places = JSON.parse(jsonMatch[0]);
+      // trailing comma 제거 후 파싱
+      const fixedJson = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+      places = JSON.parse(fixedJson);
     } catch (parseErr) {
       console.error('JSON.parse 실패:', parseErr.message, '| 내용:', jsonMatch[0].slice(0, 200));
       throw new Error('결과 파싱 오류. 다시 시도해주세요.');
