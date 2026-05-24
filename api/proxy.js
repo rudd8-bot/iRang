@@ -89,6 +89,8 @@ async function searchNaver(query) {
 function buildNaverQuery(filters, patterns, districtInfo) {
   const { weather, age, categories, region } = filters;
 
+  // 월령 구간: 12개월=0~12개월 / 24개월=13~24개월 / 36개월=25~36개월
+  //           48개월=37~48개월 / 60개월 이상=49개월~
   const ageKeyMap = {
     '12개월': 'age_12_months',
     '24개월': 'age_24_months',
@@ -104,7 +106,10 @@ function buildNaverQuery(filters, patterns, districtInfo) {
   };
   const categoryKeyMap = {
     '자연·힐링': 'category_nature',
+    '교육·체험': 'category_culture',   // 체험·전시 성격으로 culture에 폴백
     '문화·예술': 'category_culture',
+    '시장·쇼핑': 'category_food',      // 시장은 먹거리와 묶임
+    '놀이·액티비티': 'category_nature', // 액티비티는 자연·아웃도어 성격
     '먹거리 중심': 'category_food',
     '축제·이벤트': 'category_festival',
     '트렌드': 'category_trend',
@@ -179,11 +184,11 @@ export default async function handler(req, res) {
 
     // 월령별 행동 특성
     const ageCharMap = {
-      '12개월': '보행 불안정·수유 필요. 실내 위주, 이동 최소화.',
-      '24개월': '걷기 가능하나 쉽게 피로. 대기+이동+낯선 장소 겹치면 컨디션 급락. 외부 3시간 이내 권장.',
-      '36개월': '활동량 증가. 놀이터·체험 선호. 짧은 규칙 이해 가능.',
-      '48개월': '호기심 왕성. 체험·전시 흥미 가능. 이동 거리 조금 늘려도 됨.',
-      '60개월 이상': '긴 활동 가능. 자연·문화 체험 폭 넓음.',
+      '12개월': '(0~12개월) 보행 불안정·수유 필요. 실내 위주, 이동 최소화.',
+      '24개월': '(13~24개월) 걷기 가능하나 쉽게 피로. 대기+이동+낯선 장소 겹치면 컨디션 급락. 외부 3시간 이내 권장.',
+      '36개월': '(25~36개월) 활동량 증가. 놀이터·체험 선호. 짧은 규칙 이해 가능.',
+      '48개월': '(37~48개월) 호기심 왕성. 체험·전시 흥미 가능. 이동 거리 조금 늘려도 됨.',
+      '60개월 이상': '(49개월~) 긴 활동 가능. 자연·문화 체험 폭 넓음.',
     };
     const ageChar = ageCharMap[filters.age] || '';
 
@@ -201,7 +206,8 @@ export default async function handler(req, res) {
 [규칙] ${regionGuide} 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}${districtClause}
 
 [조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}
-${ageChar ? `[월령 특성] ${ageChar}\n` : ''}
+${ageChar ? `[월령 특성] ${ageChar}` : ''}
+
 [네이버 최신 후기]
 ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}
 
