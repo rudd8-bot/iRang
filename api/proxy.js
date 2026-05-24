@@ -199,7 +199,7 @@ ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'
 
 ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.district} 인근 우선.` : ''} 카테고리 선택 시 해당 카테고리 장소만. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
 
-순수 JSON만:
+반드시 JSON 배열만 출력. 설명 문장 절대 금지. 첫 글자 [, 마지막 글자 ]:
 [{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"OO구 또는 OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -224,13 +224,23 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
 
     const claudeData = await claudeRes.json();
     const text = claudeData.content.filter(i => i.type === 'text').map(i => i.text).join('');
-    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
-    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
-    if (s === -1 || e === -1) throw new Error('JSON 파싱 실패');
-
     console.log('Claude raw:', text);
     console.log('District info:', districtInfo);
-    const places = JSON.parse(clean.slice(s, e + 1));
+
+    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
+    if (s === -1 || e === -1) {
+      console.error('파싱 실패 - raw:', text.slice(0, 300));
+      throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
+    }
+
+    let places;
+    try {
+      places = JSON.parse(clean.slice(s, e + 1));
+    } catch (parseErr) {
+      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', clean.slice(s, e + 1).slice(0, 200));
+      throw new Error('결과 파싱 오류. 다시 시도해주세요.');
+    }
 
     // 구 정보 같이 반환 (프론트에서 표시용)
     res.status(200).json({ places, districtInfo });
