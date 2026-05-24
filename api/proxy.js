@@ -227,18 +227,17 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
     console.log('Claude raw:', text);
     console.log('District info:', districtInfo);
 
-    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
-    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
-    if (s === -1 || e === -1) {
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
       console.error('파싱 실패 - raw:', text.slice(0, 300));
       throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
     }
 
     let places;
     try {
-      places = JSON.parse(clean.slice(s, e + 1));
+      places = JSON.parse(jsonMatch[0]);
     } catch (parseErr) {
-      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', clean.slice(s, e + 1).slice(0, 200));
+      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', jsonMatch[0].slice(0, 200));
       throw new Error('결과 파싱 오류. 다시 시도해주세요.');
     }
 
