@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>아이랑 어디가지? - 전국 영아 나들이 맞춤 탐색기</title>
+<title>아이랑 어디가지? - 전국 영아 나들이 탐색기</title>
 <style>
   :root {
     --bg: #f8f7f4;
@@ -26,6 +26,19 @@
   .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
   .fg label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
   .fg select { width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 13px; color: var(--text-primary); }
+
+  .near-row { margin-bottom: 1.25rem; }
+  .near-row label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+  .near-input-wrap { display: flex; gap: 8px; align-items: center; }
+  .near-input-wrap input {
+    flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: var(--radius-md); background: var(--surface);
+    font-size: 13px; color: var(--text-primary);
+  }
+  .near-input-wrap input::placeholder { color: var(--text-tertiary); }
+  .near-clear { font-size: 12px; color: var(--text-tertiary); cursor: pointer; white-space: nowrap; padding: 4px 6px; }
+  .near-badge { font-size: 12px; color: var(--blue-text); background: var(--blue-bg); border-radius: var(--radius-md); padding: 4px 10px; margin-top: 6px; display: none; }
+  .near-badge.show { display: inline-block; }
 
   .sec-lbl { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
   .cat-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; }
@@ -77,28 +90,21 @@
 </style>
 </head>
 <body>
-<div id="secretPanel" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1a1a;padding:12px 16px">
-  <div style="max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px">
-    <span style="font-size:12px;color:#aaa;white-space:nowrap">접근 코드</span>
-    <input id="secretInput" type="password" placeholder="접근 코드 입력 후 Enter" style="flex:1;max-width:280px;background:#333;border:1px solid #555;border-radius:6px;padding:6px 10px;color:#fff;font-size:13px;outline:none">
-    <button onclick="saveSecret()" style="background:#185FA5;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">저장</button>
-  </div>
-</div>
 <div class="wrap">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><h1>아이랑 어디가지?</h1><button onclick="toggleSecret()" style="font-size:11px;color:#999;background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer">⚙ 접근코드</button></div>
-  <p class="subtitle">지역별 영아 동반 나들이 맞춤 탐색기</p>
+  <h1>아이랑 어디가지?</h1>
+  <p class="subtitle">전국 영아 동반 나들이 맞춤 탐색기</p>
 
   <div class="filter-grid">
     <div class="fg">
       <label>지역</label>
       <select id="f-region">
-        <option value="busan_gyeongnam">부산·경남</option>
-        <option value="daegu_gyeongbuk">대구·경북</option>
-        <option value="chungcheong_daejeon">충청·대전·세종</option>
+        <option value="busan_gyeongnam">부산 · 경남</option>
+        <option value="daegu_gyeongbuk">대구 · 경북</option>
+        <option value="chungcheong_daejeon">충청 · 대전 · 세종</option>
         <option value="gangwon">강원</option>
-        <option value="jeolla_gwangju">전라·광주</option>
+        <option value="jeolla_gwangju">전라 · 광주</option>
         <option value="jeju">제주</option>
-        <option value="seoul_gyeonggi">서울·경기</option>
+        <option value="seoul_gyeonggi">서울 · 경기</option>
       </select>
     </div>
     <div class="fg">
@@ -140,6 +146,15 @@
     </div>
   </div>
 
+  <div class="near-row">
+    <label>📍 이 장소 주변으로 찾기 (선택)</label>
+    <div class="near-input-wrap">
+      <input type="text" id="f-near" placeholder="예: 해운대 신세계백화점, 광안리 맛집" />
+      <span class="near-clear" id="nearClear">지우기</span>
+    </div>
+    <span class="near-badge" id="nearBadge"></span>
+  </div>
+
   <div class="age-row">
     <label>아이 월령</label>
     <select id="f-age">
@@ -175,30 +190,6 @@
 </div>
 
 <script>
-// ── HTML 이스케이프 ──
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
-}
-
-// ── APP SECRET ──
-function getSecret() { return sessionStorage.getItem('app_secret') || ''; }
-function saveSecret() {
-  var v = document.getElementById('secretInput').value.trim();
-  if (!v) return;
-  sessionStorage.setItem('app_secret', v);
-  document.getElementById('secretInput').value = '';
-  document.getElementById('secretPanel').style.display = 'none';
-}
-function toggleSecret() {
-  var p = document.getElementById('secretPanel');
-  p.style.display = p.style.display === 'block' ? 'none' : 'block';
-}
-document.addEventListener('DOMContentLoaded', function(){
-  if (!getSecret()) document.getElementById('secretPanel').style.display = 'block';
-  var si = document.getElementById('secretInput');
-  if (si) { si.addEventListener('keydown', function(e){ if(e.key==='Enter') saveSecret(); }); }
-});
-
 (function(){
   var PROXY = '/api/proxy';
   var tagMap = {
@@ -209,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var selected = new Set();
   var isLoading = false;
 
+  // 카테고리 토글
   document.getElementById('cats').addEventListener('click', function(e){
     var btn = e.target.closest('.cat-btn');
     if(!btn) return;
@@ -218,6 +210,14 @@ document.addEventListener('DOMContentLoaded', function(){
     else { selected.add(v); btn.classList.add('on'); }
     var arr = Array.from(selected);
     document.getElementById('debug').textContent = arr.length ? '선택됨: ' + arr.join(', ') : '선택된 경험 없음';
+  });
+
+  // 장소 입력 지우기
+  document.getElementById('nearClear').addEventListener('click', function(){
+    document.getElementById('f-near').value = '';
+    var badge = document.getElementById('nearBadge');
+    badge.classList.remove('show');
+    badge.textContent = '';
   });
 
   function show(id, visible){
@@ -242,30 +242,39 @@ document.addEventListener('DOMContentLoaded', function(){
     return '자연·힐링';
   }
 
-  function renderCards(places){
-    document.getElementById('resultCount').textContent = places.length + '곳을 찾았어요';
+  function renderCards(places, districtInfo){
+    var countText = places.length + '곳을 찾았어요';
+    if(districtInfo && districtInfo.district){
+      countText += ' · ' + districtInfo.district + ' 주변';
+      var badge = document.getElementById('nearBadge');
+      badge.textContent = '📍 ' + districtInfo.district + ' 기준 탐색';
+      badge.classList.add('show');
+    }
+    document.getElementById('resultCount').textContent = countText;
     show('resultCount', true);
     document.getElementById('cardArea').innerHTML = '<div class="card-grid">' + places.map(function(p){
       var cat = normalizeCategory(p.category);
       return '<div class="card">' +
         '<div class="card-header">' +
-          '<p class="card-name">' + escHtml(p.name) + '</p>' +
+          '<p class="card-name">' + (p.name||'') + '</p>' +
           '<div class="card-badges">' +
-            '<span class="card-indoor">' + escHtml(p.indoor) + '</span>' +
+            '<span class="card-indoor">' + (p.indoor||'') + '</span>' +
+            (p.verified ? '<span class="verified-badge">검증됨</span>' : '') +
           '</div>' +
         '</div>' +
-        '<span class="card-tag ' + tagMap[cat] + '">' + escHtml(cat) + '</span>' +
-        '<p class="card-loc">' + escHtml(p.location) + '</p>' +
-        '<p class="card-desc">' + escHtml(p.desc) + '</p>' +
-        (p.baby_point ? '<p class="card-baby">영아 포인트: ' + escHtml(p.baby_point) + '</p>' : '') +
-        (p.cost ? '<p class="card-cost">비용: ' + escHtml(p.cost) + '</p>' : '') +
-        (p.tip ? '<p class="card-tip">팁: ' + escHtml(p.tip) + '</p>' : '') +
+        '<span class="card-tag ' + tagMap[cat] + '">' + cat + '</span>' +
+        '<p class="card-loc">' + (p.location||'') + '</p>' +
+        '<p class="card-desc">' + (p.desc||'') + '</p>' +
+        (p.baby_point ? '<p class="card-baby">영아 포인트: ' + p.baby_point + '</p>' : '') +
+        (p.cost ? '<p class="card-cost">비용: ' + p.cost + '</p>' : '') +
+        (p.tip ? '<p class="card-tip">팁: ' + p.tip + '</p>' : '') +
       '</div>';
     }).join('') + '</div>';
   }
 
   document.getElementById('goBtn').addEventListener('click', async function(){
     if(isLoading) return;
+    var nearPlace = document.getElementById('f-near').value.trim();
     var filters = {
       region: document.getElementById('f-region').value,
       weather: document.getElementById('f-weather').value,
@@ -274,12 +283,13 @@ document.addEventListener('DOMContentLoaded', function(){
       indoor: document.getElementById('f-indoor').value,
       age: document.getElementById('f-age').value,
       categories: Array.from(selected),
+      nearPlace: nearPlace || null,
     };
     setLoading(true);
     try {
       var res = await fetch(PROXY, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'x-app-secret': getSecret()},
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ filters })
       });
       if(!res.ok){
@@ -289,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function(){
       var data = await res.json();
       var places = data.places;
       if(!places || !places.length){ show('emptyBox', true); }
-      else { renderCards(places); }
+      else { renderCards(places, data.districtInfo); }
     } catch(e){
       var eb = document.getElementById('errBox');
       eb.textContent = '오류: ' + e.message;
