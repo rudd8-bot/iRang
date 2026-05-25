@@ -5,6 +5,7 @@ const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 const KAKAO_REST_KEY = process.env.KAKAO_REST_KEY;
+const APP_SECRET = process.env.APP_SECRET;
 
 export const config = { maxDuration: 60 };
 
@@ -89,8 +90,6 @@ async function searchNaver(query) {
 function buildNaverQuery(filters, patterns, districtInfo) {
   const { weather, age, categories, region } = filters;
 
-  // 월령 구간: 12개월=0~12개월 / 24개월=13~24개월 / 36개월=25~36개월
-  //           48개월=37~48개월 / 60개월 이상=49개월~
   const ageKeyMap = {
     '12개월': 'age_12_months',
     '24개월': 'age_24_months',
@@ -106,10 +105,7 @@ function buildNaverQuery(filters, patterns, districtInfo) {
   };
   const categoryKeyMap = {
     '자연·힐링': 'category_nature',
-    '교육·체험': 'category_culture',   // 체험·전시 성격으로 culture에 폴백
     '문화·예술': 'category_culture',
-    '시장·쇼핑': 'category_food',      // 시장은 먹거리와 묶임
-    '놀이·액티비티': 'category_nature', // 액티비티는 자연·아웃도어 성격
     '먹거리 중심': 'category_food',
     '축제·이벤트': 'category_festival',
     '트렌드': 'category_trend',
@@ -159,6 +155,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // APP_SECRET 검증
+  const reqSecret = req.headers['x-app-secret'];
+  if (APP_SECRET && reqSecret !== APP_SECRET) {
+    return res.status(403).json({ error: '접근 권한이 없습니다.' });
+  }
+
   const { filters } = req.body || {};
   if (!filters || typeof filters !== 'object') {
     return res.status(400).json({ error: '필터 값이 없어요.' });
@@ -182,16 +184,6 @@ export default async function handler(req, res) {
     const suitable = ['유모차 이동 가능', '수유실 또는 유아휴게실', '기저귀교환대', '낮은 자극·낮은 난이도'];
     const unsuitable = ['유모차 반입·이동 불가', '수유실·기저귀교환대 모두 없음', '소음·대기줄·혼잡이 심함'];
 
-    // 월령별 행동 특성
-    const ageCharMap = {
-      '12개월': '(0~12개월) 보행 불안정·수유 필요. 실내 위주, 이동 최소화.',
-      '24개월': '(13~24개월) 걷기 가능하나 쉽게 피로. 대기+이동+낯선 장소 겹치면 컨디션 급락. 외부 3시간 이내 권장.',
-      '36개월': '(25~36개월) 활동량 증가. 놀이터·체험 선호. 짧은 규칙 이해 가능.',
-      '48개월': '(37~48개월) 호기심 왕성. 체험·전시 흥미 가능. 이동 거리 조금 늘려도 됨.',
-      '60개월 이상': '(49개월~) 긴 활동 가능. 자연·문화 체험 폭 넓음.',
-    };
-    const ageChar = ageCharMap[filters.age] || '';
-
     const regionKey = filters.region || 'busan_gyeongnam';
     const regionLabel = regionLabelMap[regionKey] || '부산광역시·경상남도';
     const regionGuide = regionGuideMap[regionKey] || regionLabel + ' 장소만.';
@@ -206,7 +198,6 @@ export default async function handler(req, res) {
 [규칙] ${regionGuide} 실내외 조건 우선.${resolvedIndoor ? ` "${resolvedIndoor}" 필수 적용.` : ''}${districtClause}
 
 [조건] 날씨:${filters.weather||'무관'} / 실내외:${resolvedIndoor||'무관'} / 거리:${filters.distance||'무관'} / 예산:${filters.budget||'무관'} / 월령:${filters.age||'무관'} / 경험:${otherCats.join(',')||'무관'}${isTrend?' / 트렌드 포함':''}
-${ageChar ? `[월령 특성] ${ageChar}` : ''}
 
 [네이버 최신 후기]
 ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'}
@@ -216,7 +207,7 @@ ${naverResults.map(r => `- ${r.title}: ${r.description}`).join('\n') || '없음'
 ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.district} 인근 우선.` : ''} 카테고리 선택 시 해당 카테고리 장소만. 네이버 결과 우선, 부족하면 지식 보완.${isTrend?' 트렌드는 최근 6개월 핫플.':''}
 
 반드시 JSON 배열만 출력. 설명 문장 절대 금지. 첫 글자 [, 마지막 글자 ]:
-[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"OO구 또는 OO시","desc":"한 줄","baby_point":"이 월령에 맞는 구체적 이유 + 주요 편의시설","tip":"방문 전 확인할 것(휴무일·예약·운행여부) + 현장 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
+[{"name":"장소명","category":"자연·힐링/교육·체험/문화·예술/시장·쇼핑/놀이·액티비티/먹거리 중심/축제·이벤트/트렌드 중 하나","location":"OO구 또는 OO시","desc":"한 줄","baby_point":"영아 포인트","tip":"방문 팁","indoor":"실내/실외/혼합","cost":"무료/1만원 이하/5만원 이하/그 이상"}]`;
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -227,7 +218,7 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2500,
+        max_tokens: 1200,
         messages: [{ role: 'user', content: prompt }],
       }),
       signal: AbortSignal.timeout(25000),
@@ -243,17 +234,18 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
     console.log('Claude raw:', text);
     console.log('District info:', districtInfo);
 
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
+    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
+    if (s === -1 || e === -1) {
       console.error('파싱 실패 - raw:', text.slice(0, 300));
       throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
     }
 
     let places;
     try {
-      places = JSON.parse(jsonMatch[0]);
+      places = JSON.parse(clean.slice(s, e + 1));
     } catch (parseErr) {
-      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', jsonMatch[0].slice(0, 200));
+      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', clean.slice(s, e + 1).slice(0, 200));
       throw new Error('결과 파싱 오류. 다시 시도해주세요.');
     }
 

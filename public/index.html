@@ -87,11 +87,26 @@
   .t-festival { background: #E1F5EE; color: #0F6E56; }
   .t-trend { background: #FFF0E6; color: #B34700; }
   .trend-btn.on { background: #FFF0E6; color: #B34700; border-color: #FFBB99; }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .secret-btn { font-size: 12px; color: var(--text-tertiary); background: none; border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 4px 10px; cursor: pointer; }
+  .secret-panel { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 1rem; display: none; }
+  .secret-panel label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+  .secret-panel input { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-md); font-size: 13px; margin-bottom: 8px; }
+  .secret-panel button { padding: 6px 14px; font-size: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--surface); cursor: pointer; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>아이랑 어디가지?</h1>
+  <div class="top-bar">
+    <h1>아이랑 어디가지?</h1>
+    <button class="secret-btn" onclick="toggleSecret()">⚙ 접근코드</button>
+  </div>
+  <div class="secret-panel" id="secretPanel">
+    <label>접근코드 입력 (탭 닫으면 자동 삭제)</label>
+    <input type="password" id="secretInput" placeholder="접근코드를 입력하세요" />
+    <button onclick="saveSecret()">저장</button>
+  </div>
   <p class="subtitle">전국 영아 동반 나들이 맞춤 탐색기</p>
 
   <div class="filter-grid">
@@ -191,6 +206,20 @@
 
 <script>
 (function(){
+
+  // 접근코드 관련
+  function getSecret() { return sessionStorage.getItem('irang_secret') || ''; }
+  function saveSecret() {
+    var v = document.getElementById('secretInput').value.trim();
+    if (!v) return;
+    sessionStorage.setItem('irang_secret', v);
+    document.getElementById('secretPanel').style.display = 'none';
+    document.getElementById('secretInput').value = '';
+  }
+  function toggleSecret() {
+    var p = document.getElementById('secretPanel');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
   var PROXY = '/api/proxy';
   var tagMap = {
     '자연·힐링':'t-nature','교육·체험':'t-edu','문화·예술':'t-culture',
@@ -289,7 +318,7 @@
     try {
       var res = await fetch(PROXY, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'x-app-secret': getSecret()},
         body: JSON.stringify({ filters })
       });
       if(!res.ok){
