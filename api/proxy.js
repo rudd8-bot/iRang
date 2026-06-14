@@ -148,6 +148,52 @@ function resolveIndoor(indoor, weather) {
   return null;
 }
 
+// Claude 응답 텍스트에서 JSON 배열을 안전하게 추출.
+// 1) 코드펜스(```json, ``` 등) 제거 (공백/줄바꿈 케이스 모두)
+// 2) 첫 '[' ~ 마지막 ']' 구간 파싱 시도
+// 3) ']'가 없거나(잘림) 파싱 실패 시: 마지막으로 완전히 닫힌 '}' 까지만 잘라 배열 복구 후 재시도
+function extractPlaces(rawText) {
+  if (!rawText) return null;
+
+  // 1) 코드펜스 제거: ```json / ``` 를 공백 포함해 제거
+  let clean = rawText
+    .replace(/```[a-zA-Z]*/g, '')  // ```json, ```JSON, ``` 등 여는 펜스
+    .replace(/```/g, '')           // 남은 닫는 펜스
+    .trim();
+
+  const start = clean.indexOf('[');
+  if (start === -1) return null;
+
+  const end = clean.lastIndexOf(']');
+
+  // 2) 정상 케이스: [ ... ] 가 모두 있으면 그대로 파싱
+  if (end !== -1 && end > start) {
+    const slice = clean.slice(start, end + 1);
+    try {
+      return JSON.parse(slice);
+    } catch {
+      // 아래 복구 로직으로 진행
+    }
+  }
+
+  // 3) 복구: 잘렸거나 파싱 실패 → 마지막으로 완전히 닫힌 객체('}')까지만 사용
+  const body = clean.slice(start); // '[' 부터 끝까지
+  const lastObjEnd = body.lastIndexOf('}');
+  if (lastObjEnd === -1) return null;
+
+  // '[' + (마지막 완전 객체까지) + ']' 로 배열을 강제로 닫는다
+  let repaired = body.slice(0, lastObjEnd + 1).trim();
+  // 끝에 남은 쉼표 제거
+  repaired = repaired.replace(/,\s*$/, '');
+  repaired = repaired + ']';
+
+  try {
+    return JSON.parse(repaired);
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -218,7 +264,7 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1200,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }],
       }),
       signal: AbortSignal.timeout(25000),
@@ -231,22 +277,15 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
 
     const claudeData = await claudeRes.json();
     const text = claudeData.content.filter(i => i.type === 'text').map(i => i.text).join('');
+    const stopReason = claudeData.stop_reason;
     console.log('Claude raw:', text);
+    console.log('stop_reason:', stopReason);
     console.log('District info:', districtInfo);
 
-    const clean = text.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
-    const s = clean.indexOf('['), e = clean.lastIndexOf(']');
-    if (s === -1 || e === -1) {
-      console.error('파싱 실패 - raw:', text.slice(0, 300));
+    const places = extractPlaces(text);
+    if (!places || !Array.isArray(places)) {
+      console.error('파싱 실패 - stop_reason:', stopReason, '| raw 앞부분:', text.slice(0, 300));
       throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
-    }
-
-    let places;
-    try {
-      places = JSON.parse(clean.slice(s, e + 1));
-    } catch (parseErr) {
-      console.error('JSON.parse 실패:', parseErr.message, '| 내용:', clean.slice(s, e + 1).slice(0, 200));
-      throw new Error('결과 파싱 오류. 다시 시도해주세요.');
     }
 
     // 구 정보 같이 반환 (프론트에서 표시용)
