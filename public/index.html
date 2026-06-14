@@ -209,17 +209,18 @@
 
   // 접근코드 관련
   function getSecret() { return sessionStorage.getItem('irang_secret') || ''; }
-  function saveSecret() {
+  // onclick="..." 은 전역(window)에서 함수를 찾으므로 window에 노출
+  window.saveSecret = function() {
     var v = document.getElementById('secretInput').value.trim();
     if (!v) return;
     sessionStorage.setItem('irang_secret', v);
     document.getElementById('secretPanel').style.display = 'none';
     document.getElementById('secretInput').value = '';
-  }
-  function toggleSecret() {
+  };
+  window.toggleSecret = function() {
     var p = document.getElementById('secretPanel');
     p.style.display = p.style.display === 'block' ? 'none' : 'block';
-  }
+  };
   var PROXY = '/api/proxy';
   var tagMap = {
     '자연·힐링':'t-nature','교육·체험':'t-edu','문화·예술':'t-culture',
