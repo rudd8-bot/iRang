@@ -42,37 +42,6 @@ function loadJSON(filename) {
   return null;
 }
 
-// ===== [진단 전용 - 테스트 후 원복 예정] =====
-// 두 좌표 간 직선거리(km). Haversine.
-function haversineKm(lat1, lng1, lat2, lng2) {
-  const R = 6371;
-  const toRad = d => d * Math.PI / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// 장소명 → 좌표 1개 (카카오 keyword). 실패 시 null.
-async function geocodePlace(name) {
-  if (!name || !KAKAO_REST_KEY) return null;
-  try {
-    const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(name)}&size=1`;
-    const res = await fetch(url, {
-      headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` },
-      signal: AbortSignal.timeout(3000),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const doc = data.documents?.[0];
-    if (!doc) return null;
-    return { lat: parseFloat(doc.y), lng: parseFloat(doc.x), matched: doc.place_name, addr: doc.address_name };
-  } catch {
-    return null;
-  }
-}
-// ===== [진단 전용 끝] =====
-
 // 카카오 장소 검색 → 구(區) 이름 추출
 async function getDistrictFromPlace(placeName) {
   if (!placeName || !KAKAO_REST_KEY) return null;
@@ -91,7 +60,7 @@ async function getDistrictFromPlace(placeName) {
     // 시/도(0), 구/군(1) 추출
     const district = parts[1] || null; // 예: "해운대구"
     const city = parts[0] || null;     // 예: "부산광역시"
-    return { district, city, fullAddress: doc.address_name, placeName: doc.place_name, lat: parseFloat(doc.y), lng: parseFloat(doc.x) };
+    return { district, city, fullAddress: doc.address_name, placeName: doc.place_name };
   } catch {
     return null;
   }
@@ -180,12 +149,16 @@ function resolveIndoor(indoor, weather) {
 }
 
 // Claude 응답 텍스트에서 JSON 배열을 안전하게 추출.
+// 1) 코드펜스(```json, ``` 등) 제거 (공백/줄바꿈 케이스 모두)
+// 2) 첫 '[' ~ 마지막 ']' 구간 파싱 시도
+// 3) ']'가 없거나(잘림) 파싱 실패 시: 마지막으로 완전히 닫힌 '}' 까지만 잘라 배열 복구 후 재시도
 function extractPlaces(rawText) {
   if (!rawText) return null;
 
+  // 1) 코드펜스 제거: ```json / ``` 를 공백 포함해 제거
   let clean = rawText
-    .replace(/```[a-zA-Z]*/g, '')
-    .replace(/```/g, '')
+    .replace(/```[a-zA-Z]*/g, '')  // ```json, ```JSON, ``` 등 여는 펜스
+    .replace(/```/g, '')           // 남은 닫는 펜스
     .trim();
 
   const start = clean.indexOf('[');
@@ -193,6 +166,7 @@ function extractPlaces(rawText) {
 
   const end = clean.lastIndexOf(']');
 
+  // 2) 정상 케이스: [ ... ] 가 모두 있으면 그대로 파싱
   if (end !== -1 && end > start) {
     const slice = clean.slice(start, end + 1);
     try {
@@ -202,11 +176,14 @@ function extractPlaces(rawText) {
     }
   }
 
-  const body = clean.slice(start);
+  // 3) 복구: 잘렸거나 파싱 실패 → 마지막으로 완전히 닫힌 객체('}')까지만 사용
+  const body = clean.slice(start); // '[' 부터 끝까지
   const lastObjEnd = body.lastIndexOf('}');
   if (lastObjEnd === -1) return null;
 
+  // '[' + (마지막 완전 객체까지) + ']' 로 배열을 강제로 닫는다
   let repaired = body.slice(0, lastObjEnd + 1).trim();
+  // 끝에 남은 쉼표 제거
   repaired = repaired.replace(/,\s*$/, '');
   repaired = repaired + ']';
 
@@ -310,39 +287,6 @@ ${regionLabel} 장소 7곳 추천.${districtInfo?.district ? ` ${districtInfo.di
       console.error('파싱 실패 - stop_reason:', stopReason, '| raw 앞부분:', text.slice(0, 300));
       throw new Error('JSON 파싱 실패: Claude가 올바른 형식을 반환하지 않았어요. 다시 시도해주세요.');
     }
-
-    // ===== [진단 전용 - 테스트 후 원복 예정] =====
-    // nearPlace 있고 입력장소 좌표 잡혔을 때만, 결과 7곳 지오코딩 + 거리 측정해 로그로만 출력.
-    // 결과(places)는 변경하지 않음. 화면 동작 동일.
-    try {
-      if (filters.nearPlace && districtInfo && districtInfo.lat && districtInfo.lng) {
-        const originLat = districtInfo.lat, originLng = districtInfo.lng;
-        const geos = await Promise.all(
-          places.map(p => geocodePlace(p.name + (p.location ? ' ' + p.location : '')))
-        );
-        const diag = places.map((p, i) => {
-          const g = geos[i];
-          if (!g) return { name: p.name, location: p.location, matched: false, distKm: null };
-          return {
-            name: p.name,
-            location: p.location,
-            matched: true,
-            matchedName: g.matched,
-            matchedAddr: g.addr,
-            distKm: Math.round(haversineKm(originLat, originLng, g.lat, g.lng) * 10) / 10,
-          };
-        });
-        const hit = diag.filter(d => d.matched).length;
-        console.log('GEO_DIAG_ORIGIN:', JSON.stringify({ nearPlace: filters.nearPlace, lat: originLat, lng: originLng }));
-        console.log('GEO_DIAG_MATCH_RATE:', hit + '/' + places.length);
-        console.log('GEO_DIAG_RESULTS:', JSON.stringify(diag));
-      } else {
-        console.log('GEO_DIAG_SKIP: nearPlace 또는 입력장소 좌표 없음', JSON.stringify({ nearPlace: filters.nearPlace || null, hasCoord: !!(districtInfo && districtInfo.lat) }));
-      }
-    } catch (diagErr) {
-      console.error('GEO_DIAG_ERROR:', diagErr.message);
-    }
-    // ===== [진단 전용 끝] =====
 
     // 구 정보 같이 반환 (프론트에서 표시용)
     res.status(200).json({ places, districtInfo });
